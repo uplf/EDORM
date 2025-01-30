@@ -1,0 +1,62 @@
+# 编译输出
+.pio/
+.build/
+.pioenvs/
+.piolibdeps/
+.piolib/
+.pio/build/
+.pio/venv/
+.pio/libdeps/
+libdeps/
+
+
+# 构建产物
+build/
+*.bin
+*.hex
+*.elf
+*.a
+*.o
+*.lst
+*.map
+
+# 隐藏配置文件
+.vscode/
+.idea/
+*.code-workspace
+*.json
+*.ini
+*.yml
+*.yaml
+*.toml
+
+# 日志和临时文件
+*.log
+*.pyc
+*.pyo
+__pycache__/
+.DS_Store
+
+# Git 相关
+*.swp
+*.swo
+*.bak
+*~
+
+
+.DS_Store
+Thumbs.db
+*.bak
+
+# 调试/日志文件
+*.env
+*.pid
+
+# 依赖目录
+lib/
+deps/
+
+# 例外规则（保留这些重要文件）
+!platformio.ini
+!**/src/
+!**/include/

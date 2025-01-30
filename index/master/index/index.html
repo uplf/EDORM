@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>智能设备监控系统</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: "Microsoft Yahei", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f7fa;
+        }
+
+        /* 标题区 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin: 0 0 15px 0;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .broadcast {
+            background: #fff9e6;
+            padding: 12px;
+            border-radius: 8px;
+            color: #e67e22;
+            margin: 0 auto 20px;
+            max-width: 800px;
+            animation: fadeIn 1s;
+            border: 1px solid #ffeeba;
+            transition: all 0.3s;
+        }
+
+        /* 状态区 */
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 auto 20px;
+            max-width: 1200px;
+            padding: 0 10px;
+        }
+
+        .refresh-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .refresh-btn {
+            padding: 8px 20px;
+            background: #3498db;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+        }
+
+        .refresh-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .refresh-time {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        /* 设备状态卡片 */
+        .status-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .device-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            width: 280px;
+            min-height: 200px;
+            transition: transform 0.3s;
+        }
+
+        .device-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .device-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2em;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .normal { background-color: #4CAF50; }
+        .warning { background-color: #FFC107; }
+        .error { background-color: #F44336; }
+
+        .metric-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .metric-list li {
+            margin: 15px 0;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .metric-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* 操作区 */
+        .operations {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            max-width: 800px;
+            margin: 30px auto;
+        }
+
+        .operation-group {
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .operation-group:not(:last-child) {
+            border-bottom: 2px solid #eee;
+        }
+
+        /* 按钮样式 */
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            min-width: 120px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .btn-start { 
+            background-color: #4CAF50; 
+            color: white; 
+        }
+
+        .btn-stop { 
+            background-color: #F44336; 
+            color: white; 
+        }
+
+        .btn-reset { 
+            background-color: #9E9E9E; 
+            color: white; 
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .status-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .device-card {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .operation-group {
+                flex-wrap: wrap;
+            }
+
+            button {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .main-title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 标题区 -->
+    <div class="header">
+        <h1 class="main-title">🏭 智能设备监控系统 🌡️</h1>
+        <div class="broadcast" id="broadcast">
+            📢 系统初始化中...
+        </div>
+    </div>
+
+    <!-- 状态区 -->
+    <div class="status-header">
+        <h2>📊 设备实时状态</h2>
+        <div class="refresh-area">
+            <div class="refresh-time">🕒 最后刷新时间：<span id="time">--</span></div>
+            <div class="refresh-btn" onclick="refreshData()">🔄 立即刷新</div>
+        </div>
+    </div>
+
+    <!-- 设备状态 -->
+    <div class="status-container">
+        <!-- 空调系统 -->
+        <div class="device-card" id="air-conditioner">
+            <h2 class="device-title">
+                <span class="status-indicator"></span>
+                ❄️ 空调系统
+            </h2>
+            <ul class="metric-list">
+                <li><span>温度：</span><span class="temp-value">--</span></li>
+                <li><span>湿度：</span><span class="humidity-value">--</span></li>
+                <li><span>风速：</span><span class="wind-value">--</span></li>
+            </ul>
+        </div>
+
+        <!-- 通风系统 -->
+        <div class="device-card" id="ventilation">
+            <h2 class="device-title">
+                <span class="status-indicator"></span>
+                💨 通风系统
+            </h2>
+            <ul class="metric-list">
+                <li><span>温度：</span><span class="temp-value">--</span></li>
+                <li><span>湿度：</span><span class="humidity-value">--</span></li>
+                <li><span>风速：</span><span class="wind-value">--</span></li>
+            </ul>
+        </div>
+
+        <!-- 冷却系统 -->
+        <div class="device-card" id="cooling">
+            <h2 class="device-title">
+                <span class="status-indicator"></span>
+                🌊 冷却系统
+            </h2>
+            <ul class="metric-list">
+                <li><span>温度：</span><span class="temp-value">--</span></li>
+                <li><span>湿度：</span><span class="humidity-value">--</span></li>
+                <li><span>风速：</span><span class="wind-value">--</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 操作区 -->
+    <div class="operations">
+        <div class="operation-group">
+            <button class="btn-start" onclick="sendCommand('start')">🚀 启动设备</button>
+            <button class="btn-stop" onclick="sendCommand('stop')">🛑 停止设备</button>
+            <button class="btn-reset" onclick="sendCommand('reset')">🔃 重置设备</button>
+        </div>
+        
+        <div class="operation-group">
+            <button class="btn-start" onclick="adjustWind('+')">🌪️ 风速+</button>
+            <button class="btn-stop" onclick="adjustWind('-')">🍃 风速-</button>
+            <button class="btn-reset" onclick="setAutoMode()">🤖 自动模式</button>
+        </div>
+    </div>
+
+    <script>
+        // 配置ESP32服务器地址（修改为你的实际IP）
+        const ESP32_IP = '127.0.0.1:4523/m1/5807065-5492102-default';
+        const API_URL = `http://${ESP32_IP}/status/device`;
+
+        // 设备映射配置
+        const deviceConfig = {
+            'air-conditioner': {
+                temp: document.querySelector('#air-conditioner .temp-value'),
+                humidity: document.querySelector('#air-conditioner .humidity-value'),
+                wind: document.querySelector('#air-conditioner .wind-value'),
+                status: document.querySelector('#air-conditioner .status-indicator')
+            },
+            'ventilation': {
+                temp: document.querySelector('#ventilation .temp-value'),
+                humidity: document.querySelector('#ventilation .humidity-value'),
+                wind: document.querySelector('#ventilation .wind-value'),
+                status: document.querySelector('#ventilation .status-indicator')
+            },
+            'cooling': {
+                temp: document.querySelector('#cooling .temp-value'),
+                humidity: document.querySelector('#cooling .humidity-value'),
+                wind: document.querySelector('#cooling .wind-value'),
+                status: document.querySelector('#cooling .status-indicator')
+            }
+        };
+
+        // 刷新数据
+        async function refreshData() {
+            getStatusData();
+    try {
+        toggleRefreshButton(true);
+
+        // 构造 URLSearchParams 对象
+        var urlencoded = new URLSearchParams();
+        // 如果 API 需要具体参数，可在这里添加，如：urlencoded.append("key", "value");
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: urlencoded,
+            redirect: 'follow'
+        });
+
+        if (!response.ok) throw new Error(`网络错误: ${response.status}`);
+
+        const data = await response.json(); // 假设接口返回 JSON
+        updateUI(data);
+        updateBroadcast('✅ 数据更新成功', '#d4edda', '#155724');
+
+    } catch (error) {
+        console.error('刷新失败:', error);
+        updateBroadcast(`⚠️ 错误: ${error.message}`, '#f8d7da', '#721c24');
+    } finally {
+        toggleRefreshButton(false);
+        updateTime();
+    }
+        }
+
+        // 更新界面
+        function updateUI(data) {
+            Object.entries(data).forEach(([deviceId, deviceData]) => {
+                const elements = deviceConfig[deviceId];
+                if (elements) {
+                    elements.temp.textContent = `${deviceData.temperature.toFixed(1)}°C`;
+                    elements.humidity.textContent = `${Math.round(deviceData.humidity)}%`;
+                    elements.wind.textContent = `${deviceData.wind_speed.toFixed(1)}m/s`;
+                    elements.status.className = `status-indicator ${deviceData.status}`;
+                    animateUpdate(deviceId);
+                }
+            });
+        }
+
+        // 控制命令发送
+        async function sendCommand(command) {
+            
+            try {
+                const response = await fetch(`http://${ESP32_IP}/control?cmd=${command}`);
+                if (!response.ok) throw new Error('控制命令发送失败');
+                updateBroadcast(`📢 命令执行成功: ${command}`, '#d4edda', '#155724');
+            } catch (error) {
+                updateBroadcast(`⚠️ 控制失败: ${error.message}`, '#f8d7da', '#721c24');
+            }
+        }
+
+        // 工具函数
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toLocaleString();
+        }
+
+        function toggleRefreshButton(loading) {
+            const btn = document.querySelector('.refresh-btn');
+            btn.textContent = loading ? '🔄 加载中...' : '🔄 立即刷新';
+            btn.style.opacity = loading ? 0.7 : 1;
+        }
+
+        function animateUpdate(deviceId) {
+            const card = document.getElementById(deviceId);
+            card.style.transform = 'scale(1.02)';
+            setTimeout(() => card.style.transform = 'scale(1)', 200);
+        }
+
+        function updateBroadcast(message, bgColor, textColor) {
+            const broadcast = document.getElementById('broadcast');
+            broadcast.textContent = message;
+            broadcast.style.backgroundColor = bgColor;
+            broadcast.style.color = textColor;
+            broadcast.style.borderColor = textColor;
+        }
+
+        function getStatusData(){
+            var urlencoded = new URLSearchParams();
+            var requestOptions = {
+             method: 'POST',
+            body: urlencoded,
+            redirect: 'follow'
+            };
+            fetch("http://127.0.0.1:4523/m1/5807065-5492102-default/status/device", requestOptions)
+           .then(response => response.text())
+            .then(result => console.log(result))
+            .catch(error => console.log('error', error));
+        }
+
+        // 初始化
+        refreshData(); // 首次加载数据
+        setInterval(refreshData, 30000); // 30秒自动刷新
+    </script>
+</body>
+</html>
