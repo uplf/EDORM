@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDORM-我还没想好</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .text{
+            line-height: 160%;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .exit-button {
+            display: block;
+            margin: 20px auto;
+            border: none;
+            padding: 8px 20px;
+            background: #3498db;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .exit-button:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>被遗忘の角落</h1>
+        <div class="text">
+        <p>本来觉得这一块大有可为的，但是我的想法怎么落实我完全没有头绪。</p>
+        <p>有了有线以太网连接，EDORM系统可以访问广义上的网络。
+            物联网系统便与外界信息交换，事实上“好句API”已经投入使用，它通过定时向好句服务器发送请求，
+            然后将好句通过蓝牙传输到Master上。</p>
+        <p>现在正在思考如何进一步利用以太网，主要有两方面的用途，-物联网访问广域网  -广域网控制物联网  -利用校园网突破4个设备的限制。
+            这里说说它们的局限。</p>
+        <p>-物联网访问广域网<br><blockquote>
+            ✅可以研究下设备是否需要调用相关接口，并找我要蓝牙信息<br>
+            ❓查询天气并在这里解析显示(应该可以实现但是1期就没有搞)<br>
+            ⚠️翻译(使用场景-连接设备限制)<br>
+            ❌校园网免登录拓展（1.难度较高 2.ESP32的CPU资源有限--坐等树莓派捐助）<br>
+        </blockquote>
+        <p>-广域网控制物联网<br><blockquote>
+            ⚠️应该需要租借服务器<br>
+        </blockquote>
+        </p>
+        <p>-利用校园网突破4个设备的限制。<br><blockquote>
+            ⚠️可能违反校规，好心人帮我研究下🙁<br>
+        </blockquote>
+        </p>
+        </div>
+        <button class="exit-button" onclick="window.close()">退出</button>
+    </div>
+</body>
+</html>

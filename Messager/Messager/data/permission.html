@@ -167,13 +167,17 @@
             </tbody>
         </table>
 
-        <button class="btn">满意离开</button>
+        <button class="btn" onclick="window.close()">满意离开</button>
         <!-- 保存按钮 -->
         <button class="btn" onclick="savePermissions()">保存设置</button>
         
     </div>
 
     <script>
+                // 配置ESP32服务器地址（修改为你的实际IP）
+        const ESP32_IP = '127.0.0.1:4523/m1/5807065-5492102-default';
+        const ROOT_URL=`http://${ESP32_IP}`;
+
         // 权限配置（初始值）
         const permissions = {
             door: 'guest',
@@ -202,14 +206,26 @@
                 const permission = select.getAttribute('data-permission');
                 permissions[permission] = select.value;
             });
-
+            const userdata={
+                PermissionInfo:permissions,
+                UserInfo:username
+            }
             // 这里可以添加保存到服务器的逻辑
-            console.log('保存的权限配置:', permissions);
+            console.log('保存的权限配置:', JSON.stringify(userdata));
             alert('权限设置已保存！');
+            fetch(ROOT_URL+"/permission/API", {
+                method: "PUT",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: JSON.stringify(userdata),
+            }).then(response => response.text())
+              .then(data => alert("服务器响应：" + data));
         }
 
         // 页面加载时初始化
         window.onload = initPage;
+        let HrefSearch=window.location.search;
+        let UrlPara=new URLSearchParams(HrefSearch);
+        const username = UrlPara.get('username');
     </script>
 </body>
 </html>

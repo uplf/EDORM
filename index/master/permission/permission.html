@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>EDORM-用户组权限管理</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: "Microsoft Yahei", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f7fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* 下拉菜单样式 */
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 100%;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+         
+        
+        <!-- 权限管理表格 -->
+        <table>
+            <thead>
+                <tr>
+                    <th>权限名称</th>
+                    <th>最低用户组</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>开门助手</td>
+                    <td>
+                        <select class="permission-select" data-permission="door">
+                            <option value="guest">游客</option>
+                            <option value="internal">内部用户</option>
+                            <option value="admin">管理用户</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>关灯助手</td>
+                    <td>
+                        <select class="permission-select" data-permission="light">
+                            <option value="guest">游客</option>
+                            <option value="internal">内部用户</option>
+                            <option value="admin">管理用户</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>闹钟</td>
+                    <td>
+                        <select class="permission-select" data-permission="alarm">
+                            <option value="guest">游客</option>
+                            <option value="internal">内部用户</option>
+                            <option value="admin">管理用户</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>串口调试助手</td>
+                    <td>
+                        <select class="permission-select" data-permission="serial">
+                            <option value="guest">游客</option>
+                            <option value="internal">内部用户</option>
+                            <option value="admin">管理用户</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>以太网访问API</td>
+                    <td>
+                        <select class="permission-select" data-permission="api">
+                            <option value="guest">游客</option>
+                            <option value="internal">内部用户</option>
+                            <option value="admin">管理用户</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>以太网开关</td>
+                    <td>
+                        <select class="permission-select" data-permission="ethernet">
+                            <option value="guest">游客</option>
+                            <option value="internal">内部用户</option>
+                            <option value="admin">管理用户</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>设备互联开关</td>
+                    <td>
+                        <select class="permission-select" data-permission="device">
+                            <option value="guest">游客</option>
+                            <option value="internal">内部用户</option>
+                            <option value="admin">管理用户</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="btn" onclick="window.close()">满意离开</button>
+        <!-- 保存按钮 -->
+        <button class="btn" onclick="savePermissions()">保存设置</button>
+        
+    </div>
+
+    <script>
+                // 配置ESP32服务器地址（修改为你的实际IP）
+        const ESP32_IP = '127.0.0.1:4523/m1/5807065-5492102-default';
+        const ROOT_URL=`http://${ESP32_IP}`;
+
+        // 权限配置（初始值）
+        const permissions = {
+            door: 'guest',
+            light: 'guest',
+            alarm: 'internal',
+            serial: 'admin',
+            api: 'internal',
+            ethernet: 'admin',
+            device: 'admin'
+        };
+
+        // 初始化页面
+        function initPage() {
+            Object.keys(permissions).forEach(permission => {
+                const select = document.querySelector(`select[data-permission="${permission}"]`);
+                if (select) {
+                    select.value = permissions[permission];
+                }
+            });
+        }
+
+        // 保存权限设置
+        function savePermissions() {
+            const selects = document.querySelectorAll('.permission-select');
+            selects.forEach(select => {
+                const permission = select.getAttribute('data-permission');
+                permissions[permission] = select.value;
+            });
+            const userdata={
+                PermissionInfo:permissions,
+                UserInfo:username
+            }
+            // 这里可以添加保存到服务器的逻辑
+            console.log('保存的权限配置:', JSON.stringify(userdata));
+            alert('权限设置已保存！');
+            fetch(ROOT_URL+"/permission/API", {
+                method: "PUT",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: JSON.stringify(userdata),
+            }).then(response => response.text())
+              .then(data => alert("服务器响应：" + data));
+        }
+
+        // 页面加载时初始化
+        window.onload = initPage;
+        let HrefSearch=window.location.search;
+        let UrlPara=new URLSearchParams(HrefSearch);
+        const username = UrlPara.get('username');
+    </script>
+</body>
+</html>
