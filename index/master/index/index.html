@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>智能设备监控系统</title>
+    <title>EDORM</title>
     <style>
         /* 基础样式 */
         body {
@@ -173,16 +173,19 @@
 
         .btn-start { 
             background-color: #4CAF50; 
+            width: 130px;
             color: white; 
         }
 
         .btn-stop { 
             background-color: #F44336; 
+            width: 130px;
             color: white; 
         }
 
         .btn-reset { 
             background-color: #9E9E9E; 
+            width: 130px;
             color: white; 
         }
 
@@ -229,15 +232,16 @@
 <body>
     <!-- 标题区 -->
     <div class="header">
-        <h1 class="main-title">🏭 智能设备监控系统 🌡️</h1>
-        <div class="broadcast" id="broadcast">
+        <h1 class="main-title"> 秽土重生🤺<br> <span id="theme"></span> </h1>
+        <h2><div id="broadcast">
             📢 系统初始化中...
         </div>
+        </h2>
     </div>
 
     <!-- 状态区 -->
     <div class="status-header">
-        <h2>📊 设备实时状态</h2>
+        <h2>🌃 设备实时状态</h2>
         <div class="refresh-area">
             <div class="refresh-time">🕒 最后刷新时间：<span id="time">--</span></div>
             <div class="refresh-btn" onclick="refreshData()">🔄 立即刷新</div>
@@ -247,57 +251,70 @@
     <!-- 设备状态 -->
     <div class="status-container">
         <!-- 空调系统 -->
-        <div class="device-card" id="air-conditioner">
+        <div class="device-card" id="communitor">
             <h2 class="device-title">
                 <span class="status-indicator"></span>
-                ❄️ 空调系统
+                ❄️ 通讯机
             </h2>
             <ul class="metric-list">
-                <li><span>温度：</span><span class="temp-value">--</span></li>
-                <li><span>湿度：</span><span class="humidity-value">--</span></li>
-                <li><span>风速：</span><span class="wind-value">--</span></li>
+                <li><span>🕸️以太网：</span><span class="ether-value">--</span></li>
+                <li><span>🚔️FBI：</span><span class="FBI-state">--</span></li>
+                <li><span>🎩开关：</span><span class="light-state">--</span></li>
             </ul>
         </div>
 
         <!-- 通风系统 -->
-        <div class="device-card" id="ventilation">
+        <div class="device-card" id="master">
             <h2 class="device-title">
                 <span class="status-indicator"></span>
-                💨 通风系统
+                💨 主终端
             </h2>
             <ul class="metric-list">
-                <li><span>温度：</span><span class="temp-value">--</span></li>
-                <li><span>湿度：</span><span class="humidity-value">--</span></li>
-                <li><span>风速：</span><span class="wind-value">--</span></li>
+
+                <li><span>🕹️全局指令：</span><span class="cmd-value">--</span></li>
+                <li><span>🐓闹钟：</span><span class="alarm-value">--</span></li>
+                <li><span>🐞调试：</span><span class="debug-state">--</span></li>
             </ul>
         </div>
 
         <!-- 冷却系统 -->
-        <div class="device-card" id="cooling">
+        <div class="device-card" id="messager">
             <h2 class="device-title">
                 <span class="status-indicator"></span>
-                🌊 冷却系统
+                ⛈️ 传感机
             </h2>
             <ul class="metric-list">
-                <li><span>温度：</span><span class="temp-value">--</span></li>
-                <li><span>湿度：</span><span class="humidity-value">--</span></li>
-                <li><span>风速：</span><span class="wind-value">--</span></li>
+                <li><span>🥶温度：</span><span class="temp-value">--</span></li>
+                <li><span>🐜湿度：</span><span class="humidity-value">--</span></li>
+                <li><span>🍃风速：</span><span class="wind-value">--</span></li>
             </ul>
         </div>
     </div>
 
     <!-- 操作区 -->
     <div class="operations">
-        <div class="operation-group">
-            <button class="btn-start" onclick="sendCommand('start')">🚀 启动设备</button>
-            <button class="btn-stop" onclick="sendCommand('stop')">🛑 停止设备</button>
-            <button class="btn-reset" onclick="sendCommand('reset')">🔃 重置设备</button>
-        </div>
         
+        <h2 class="device-title">🐦️客户操作</h2>
         <div class="operation-group">
-            <button class="btn-start" onclick="adjustWind('+')">🌪️ 风速+</button>
-            <button class="btn-stop" onclick="adjustWind('-')">🍃 风速-</button>
-            <button class="btn-reset" onclick="setAutoMode()">🤖 自动模式</button>
+            <button class="btn-start" onclick="sendCommand('start')">🦵🚪 FBI</button>
+            <button class="btn-start" onclick="sendCommand('start')">🦇🎩 助手</button>
+            <button class="btn-reset" onclick="sendCommand('reset')">👊🏼🐔 闹钟</button>
+            <button class="btn-stop" onclick="sendCommand('stop')">🛑🌍 急停</button>
+
+        </div>
+
+        <h2 class="device-title">🔧开发操作</h2>
+        <div class="operation-group">
+            <button class="btn-reset" onclick="adjustWind('+')">usartCMD</button>
+            <button class="btn-reset" onclick="adjustWind('-')">etherAPI</button>
+            <button class="btn-start" onclick="setAutoMode()">📁文档</button>
+        </div>
+
+        <h2 class="device-title">🛠️维护操作</h2>
+        <div class="operation-group">
+            <button class="btn-start" onclick="adjustWind('+')">🌊 以太网</button>
+            <button class="btn-stop" onclick="adjustWind('-')">🌐 设备互联</button>
+            <button class="btn-reset" onclick="setAutoMode()">🚷 权限设置</button>
         </div>
     </div>
 
@@ -308,23 +325,23 @@
 
         // 设备映射配置
         const deviceConfig = {
-            'air-conditioner': {
-                temp: document.querySelector('#air-conditioner .temp-value'),
-                humidity: document.querySelector('#air-conditioner .humidity-value'),
-                wind: document.querySelector('#air-conditioner .wind-value'),
-                status: document.querySelector('#air-conditioner .status-indicator')
+            'communitor': {
+                status: document.querySelector('#communitor .status-indicator'),
+                ether: document.querySelector('#communitor .ether-value'),
+                FBI: document.querySelector('#communitor .FBI-state'),
+                light: document.querySelector('#communitor .light-state'),
             },
-            'ventilation': {
-                temp: document.querySelector('#ventilation .temp-value'),
-                humidity: document.querySelector('#ventilation .humidity-value'),
-                wind: document.querySelector('#ventilation .wind-value'),
-                status: document.querySelector('#ventilation .status-indicator')
+            'master': {
+                status: document.querySelector('#master .status-indicator'),
+                cmd: document.querySelector('#master .cmd-value'),
+                alarm: document.querySelector('#master .alarm-value'),
+                debug: document.querySelector('#master .debug-state')
             },
-            'cooling': {
-                temp: document.querySelector('#cooling .temp-value'),
-                humidity: document.querySelector('#cooling .humidity-value'),
-                wind: document.querySelector('#cooling .wind-value'),
-                status: document.querySelector('#cooling .status-indicator')
+            'messager': {
+                temp: document.querySelector('#messager .temp-value'),
+                humidity: document.querySelector('#messager .humidity-value'),
+                wind: document.querySelector('#messager .wind-value'),
+                status: document.querySelector('#messager .status-indicator')
             }
         };
 
@@ -364,13 +381,36 @@
             Object.entries(data).forEach(([deviceId, deviceData]) => {
                 const elements = deviceConfig[deviceId];
                 if (elements) {
-                    elements.temp.textContent = `${deviceData.temperature.toFixed(1)}°C`;
-                    elements.humidity.textContent = `${Math.round(deviceData.humidity)}%`;
-                    elements.wind.textContent = `${deviceData.wind_speed.toFixed(1)}m/s`;
-                    elements.status.className = `status-indicator ${deviceData.status}`;
+                    switch(deviceId){
+                        case 'communitor':{
+                            elements.ether.textContent=`${deviceData.ether}`;
+                            elements.FBI.textContent=`${deviceData.FBI}`;
+                            elements.light.textContent=`${deviceData.light}`;
+                            elements.status.className = `status-indicator ${deviceData.status}`;
+                            break;
+                        }
+                        case 'master':{
+                            elements.cmd.textContent=`${deviceData.cmd}`;
+                            elements.alarm.textContent=`${deviceData.alarm}`;
+                            elements.debug.textContent=`${deviceData.debug}`;
+                            elements.status.className = `status-indicator ${deviceData.status}`;
+                            break;
+                        }
+                        case 'messager':{
+                            elements.temp.textContent = `${deviceData.temperature.toFixed(1)}°C`;
+                            elements.humidity.textContent = `${Math.round(deviceData.humidity)}%`;
+                            elements.wind.textContent = `${deviceData.wind_speed.toFixed(1)}m/s`;
+                            elements.status.className = `status-indicator ${deviceData.status}`;
+                            break;
+                            
+                        }
+                    }
                     animateUpdate(deviceId);
                 }
-            });
+                else document.getElementById('theme').textContent =`${data.theme.toLocaleString()}`;
+            }
+
+        );
         }
 
         // 控制命令发送

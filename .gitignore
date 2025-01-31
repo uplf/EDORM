@@ -60,3 +60,4 @@ deps/
 !platformio.ini
 !**/src/
 !**/include/
+!**/data/
