@@ -1,5 +1,5 @@
 #include "bleCon.h"
-
+/*
 
 
 BLECharacteristic *pCharacteristic; //创建一个BLE特性pCharacteristic
@@ -86,3 +86,5 @@ void loop()
     lastMsg = now; //刷新上一次发送数据的时间
   }
 }
+
+*/

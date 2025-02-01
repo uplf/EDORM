@@ -1,19 +1,11 @@
 #include "wifiWeb.h"
 
 
-void handle_not_found(){
-    server.send(404, "text/plain", "Not found");
-}
 
-void sendNotFound(){
-    server.send(404, "text/plain", "File Not Found");
-}
 void sendNotFound(AsyncWebServerRequest *request){
     request->send(404,"text/plain","Not Found");
 }
-void sendInnerError(){
-    server.send(500,"text/plain","Internal Server Error");
-}
+
 void sendInnerError(AsyncWebServerRequest *request){
     request->send(500,"text/plain","Internal Server Error");
 }
@@ -22,7 +14,7 @@ void sendJsonToAPIClient(AsyncWebServerRequest *request,String jsoncontent){
     request->send(200,"application/json",jsoncontent);
 }
 void sendJsonResToAPIClient(AsyncWebServerRequest *request,short result){
-    StaticJsonDocument<32> jsonStatus;
+    StaticJsonDocument<64> jsonStatus;
     jsonStatus["status"]=result?"failed":"done";
     int HTMLcode=result?500:200;
     if(result)jsonStatus["error"]="error code:"+(String)result;
@@ -34,23 +26,7 @@ void sendJsonResToAPIClient(AsyncWebServerRequest *request,short result){
 
 
 
-void sendSPIFFSFile(String path){
-    if(!SPIFFS.begin(true)){
-        sendInnerError();
-        return;
-    }    
-    File file = SPIFFS.open(path, "r");
-    if (!file) {
-        sendNotFound();
-        file.close();
-        return;
-    }
-    
-    String contentType = "text/html"; // 默认 HTML
-    server.streamFile(file, contentType);
-    file.close();
 
-}
 
 void sendSPIFFSFile(String path,AsyncWebServerRequest *request){
     

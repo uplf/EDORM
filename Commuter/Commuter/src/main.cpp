@@ -76,7 +76,7 @@ void setup()
     server.begin();
     Serial.println("HTTP server started");
 }
-//1.解读2操作返回3回复
+
 
 
 void loop()
@@ -84,54 +84,3 @@ void loop()
 
 
 }
-
-
-
-
-/*#include <Arduino.h>
-#include <WiFi.h>
-#include <SPIFFS.h>
-#include "ESPAsyncWebServer.h"
- 
- 
-AsyncWebServer server(80);
- 
-//连接WIFI
-void connect_wifi(){
-  const char* wifi_ssid = "ESP32";
-  const char* wifi_password = "12345678";
-  Serial.begin(9600);
-  WiFi.begin(wifi_ssid, wifi_password);         //连接WIFI
-  Serial.print("Connected");
-  //循环，直到连接成功
-  while(WiFi.status() != WL_CONNECTED){
-    Serial.print(".");
-    delay(500);
-  }
-  Serial.println();
-  IPAddress local_IP = WiFi.localIP();
-  Serial.print("WIFI is connected,The local IP address is "); //连接成功提示
-  Serial.println(local_IP); 
-}
- 
-void call_back(AsyncWebServerRequest *request){
-  if(!SPIFFS.begin(true)){
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-  request->send(SPIFFS,"/index.html");        //发送html文件内容
-}
- 
-void web_server(){
-  server.on("/",HTTP_GET,call_back);    //注册回调函数
-  server.begin();                       //初始化
-}
- 
-void setup() {
-  connect_wifi();
-  web_server();
-}
- 
-void loop() {
- 
-}*/

@@ -16,6 +16,7 @@ String buildJsonDataResponse_Permission();
 
 
 struct timeStatus{
+    timeStatus(){this->hour=0;this->min=0;this->sec=0;}
     timeStatus(short hr, short mi, short sc):hour(hr),min(mi),sec(sc){}
     short hour;
     short min;

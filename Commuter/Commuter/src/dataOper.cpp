@@ -48,6 +48,7 @@ String valStatus::valueToJsonString(String unit=""){
 
 String buildJsonDataResponse_Device(){
     StaticJsonDocument<512> jsonStatus;
+
     
     JsonObject communitor=jsonStatus.createNestedObject("communitor");
     communitor["ether"]=cmtStatus.ether.funcStatusToJsonString();
@@ -80,3 +81,11 @@ short handleOperatie(short cmd){
     return (*operateMap[cmd])();
 }
 
+
+
+short FBIOpenOperator(){return 0;}
+short LightOffOperator(){return 0;}
+short WifiOffOperator(){return 0;}
+short EtherOffOperator(){return 0;}
+short AlertOffOperator(){return 0;}
+short forceSTOPOperator(){return 0;}

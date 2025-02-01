@@ -4,14 +4,14 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <SPIFFS.h>
-#include <WebServer.h>
+//#include <WebServer.h>
 #include "ESPAsyncWebServer.h"
 #include "prefer.h"
 #include <string.h>
 #include <ArduinoJson.h>
 #include "dataOper.h"
 
-extern WebServer server;
+extern AsyncWebServer server;
 
 void handle_not_found();
 void sendNotFound();
