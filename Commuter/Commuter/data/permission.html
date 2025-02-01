@@ -19,6 +19,12 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+            /* 新增：按钮间距调整 */
+        .btn-group {
+            display: flex;
+            gap: 10px; /* 按钮间距 */
+            margin-top: 20px;
+        }
 
         h1 {
             color: #2c3e50;
@@ -47,6 +53,7 @@
         tr:hover {
             background-color: #f1f1f1;
         }
+        
 
         /* 下拉菜单样式 */
         select {
@@ -135,7 +142,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>以太网访问API</td>
+                    <td>API访问</td>
                     <td>
                         <select class="permission-select" data-permission="api">
                             <option value="guest">游客</option>
@@ -155,9 +162,18 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>设备互联开关</td>
+                    <td>重新连接</td>
                     <td>
                         <select class="permission-select" data-permission="device">
+                            <option value="guest">游客</option>
+                            <option value="internal">内部用户</option>
+                            <option value="admin">管理用户</option>
+                        </select>
+                    </td>
+
+                    <td>急停</td>
+                    <td>
+                        <select class="permission-select" data-permission="FORCEStop">
                             <option value="guest">游客</option>
                             <option value="internal">内部用户</option>
                             <option value="admin">管理用户</option>
@@ -167,9 +183,16 @@
             </tbody>
         </table>
 
-        <button class="btn" onclick="window.close()">满意离开</button>
-        <!-- 保存按钮 -->
-        <button class="btn" onclick="savePermissions()">保存设置</button>
+        <div class="container">
+            <!-- 原有表格保持不变 -->
+    
+            <!-- 修改：按钮容器 -->
+            <div class="btn-group">
+                <button class="btn" onclick="window.close()">离开</button>
+                <button class="btn" onclick="refreshPermissions()">刷新权限</button> <!-- 新增刷新按钮 -->
+                <button class="btn" onclick="savePermissions()">保存设置</button>
+            </div>
+        </div>
         
     </div>
 
@@ -177,6 +200,40 @@
                 // 配置ESP32服务器地址（修改为你的实际IP）
         const ESP32_IP = '192.168.4.1';
         const ROOT_URL=`http://${ESP32_IP}`;
+
+
+                // 新增：刷新权限函数
+        async function refreshPermissions() {
+            try {
+                const response = await fetch(`${ROOT_URL}/API/permission`);
+                if (!response.ok) throw new Error(`HTTP错误 ${response.status}`);
+                
+                const data = await response.json();
+                
+                // 更新本地权限对象
+                Object.keys(data).forEach(key => {
+                    if (permissions.hasOwnProperty(key)) {
+                        permissions[key] = data[key];
+                    }
+                });
+                
+                // 更新UI
+                updatePermissionUI();
+                alert('权限已刷新！');
+            } catch (error) {
+                console.error('刷新失败:', error);
+                alert(`刷新失败: ${error.message}`);
+            }
+        }
+
+        // 新增：专用UI更新函数
+        function updatePermissionUI() {
+            Object.keys(permissions).forEach(permission => {
+                const select = document.querySelector(`select[data-permission="${permission}"]`);
+                if (select) select.value = permissions[permission];
+            });
+        }
+
 
         // 权限配置（初始值）
         const permissions = {
@@ -186,17 +243,13 @@
             serial: 'admin',
             api: 'internal',
             ethernet: 'admin',
-            device: 'admin'
+            device: 'admin',
+            FORCEStop:'internal'
         };
 
         // 初始化页面
         function initPage() {
-            Object.keys(permissions).forEach(permission => {
-                const select = document.querySelector(`select[data-permission="${permission}"]`);
-                if (select) {
-                    select.value = permissions[permission];
-                }
-            });
+            refreshPermissions(); // 页面加载时自动刷新
         }
 
         // 保存权限设置

@@ -55,11 +55,14 @@ void setup()
     server.on("/API/device",HTTP_GET,
     [](AsyncWebServerRequest *request){sendJsonToAPIClient(request,buildJsonDataResponse_Device());});
 
+    server.on("/API/permission",HTTP_GET,
+    [](AsyncWebServerRequest *request){sendJsonToAPIClient(request,buildJsonDataResponse_Permission());});
+
     server.on("API/FBIOpen",HTTP_GET,
     [](AsyncWebServerRequest *request){if(permissionCheck(request,"FBI"))sendJsonResToAPIClient(request,handleOperatie(1));});
 
     server.on("API/LightOFF",HTTP_GET,
-    [](AsyncWebServerRequest *request){if(permissionCheck(request,"APIrequest"))sendJsonResToAPIClient(request,handleOperatie(2));});
+    [](AsyncWebServerRequest *request){if(permissionCheck(request,"light"))sendJsonResToAPIClient(request,handleOperatie(2));});
 
     server.on("API/WifiOff",HTTP_GET,
     [](AsyncWebServerRequest *request){if(permissionCheck(request,"WifiOff"))sendJsonResToAPIClient(request,handleOperatie(3));});
@@ -73,6 +76,9 @@ void setup()
     server.on("API/FORCEStop",HTTP_GET,
     [](AsyncWebServerRequest *request){if(permissionCheck(request,"FORTHStop"))sendJsonResToAPIClient(request,handleOperatie(6));});
     
+    server.on("permission/API",HTTP_GET,
+    [](AsyncWebServerRequest *request){if(permissionCheck(request,"permission"))sendJsonResToAPIClient(request,handleOperatie(1,request));});
+
     server.begin();
     Serial.println("HTTP server started");
 }

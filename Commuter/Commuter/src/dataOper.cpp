@@ -1,7 +1,9 @@
 #include "dataOper.h"
 
+
 short (*operateMap[])()={NULL,&FBIOpenOperator,&LightOffOperator,&WifiOffOperator,
                             &EtherOffOperator,&AlertOffOperator,&forceSTOPOperator};
+short (*operateReqMap[])(AsyncWebServerRequest*)={NULL,&defpermOperator};
 
 
 communitorStatus cmtStatus;
@@ -74,13 +76,26 @@ String buildJsonDataResponse_Device(){
     serializeJson(jsonStatus,jsonString);
     return jsonString;
 }
-String buildJsonDataResponse_Permission();
+
+String perMap[]={"door","light","alarm","serial","api","ethernet","device","FORCEStop"};
+String prefMAP[]={"FBI","light","AlertOff","debug","request","EtherOff","WifiOff","FORCEStop"};
+
+String buildJsonDataResponse_Permission(){
+    StaticJsonDocument<256> jsonStatus;
+    jsonStatus["theme"]=readOrCreate("theme",(String)"");
+    for(short i=0;i<=7;i++)jsonStatus[perMap[i]]=codeToString(readOrCreate((prefMAP[i]).c_str(),2));
+    String jsonString;
+    serializeJson(jsonStatus,jsonString);
+    return jsonString;
+}
 
 
 short handleOperatie(short cmd){
     return (*operateMap[cmd])();
 }
-
+short handleOperatie(short cmd,AsyncWebServerRequest *request){
+    return (*operateReqMap[cmd])(request);
+}
 
 
 short FBIOpenOperator(){return 0;}
@@ -89,3 +104,27 @@ short WifiOffOperator(){return 0;}
 short EtherOffOperator(){return 0;}
 short AlertOffOperator(){return 0;}
 short forceSTOPOperator(){return 0;}
+short defpermOperator(AsyncWebServerRequest* request){
+    for(short i=0;i<=7;i++){
+        prefs.putInt(prefMAP[i].c_str(),PERstringToCode(request->getParam(perMap[i])->value()));
+    }
+    return 0;
+}
+
+
+String codeToString(int code){
+    switch(code){
+        case 0:return "guest";
+        case 1:return "internal";
+        case 2:return "admin";
+        default:return "error";
+    }
+}
+int PERstringToCode(String userGroup){
+    if(userGroup=="guest")return 0;
+    if(userGroup=="internal")return 1;
+    if(userGroup=="admin")return 2;
+    return -1;
+
+}
+

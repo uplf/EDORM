@@ -3,7 +3,7 @@
 
 #include "bleCon.h"
 #include "wifiWeb.h"
-
+#include "prefer.h"
 
 
 
@@ -75,6 +75,7 @@ extern messagerStatus msgStatus;
 
 
 short handleOperatie(short);
+short handleOperatie(short,AsyncWebServerRequest *);
 
 short FBIOpenOperator();
 short LightOffOperator();
@@ -82,10 +83,10 @@ short WifiOffOperator();
 short EtherOffOperator();
 short AlertOffOperator();
 short forceSTOPOperator();
+short defpermOperator(AsyncWebServerRequest *);
 
-
-//调试区，这里最难
-
+String codeToString(int);
+int PERstringToCode(String);
 
 
 

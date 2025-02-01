@@ -1,10 +1,18 @@
 #include "prefer.h"
 
 Preferences prefs;
-
+Preferences prefs_user;
 
 void prefInit(){
-    prefs.begin("userNamespace");
+    prefs.begin("setting");
+    prefs_user.begin("user");
+    
+    if(!prefs_user.isKey("admin@wiuplf")){
+        prefs.clear();
+        prefs.putInt("admin@wiuplf",2);
+    }
+    
+    
 
 }
 

@@ -349,7 +349,7 @@
         // 刷新数据
         async function refreshData() {
             getStatusData();
-    try {
+        try {
         toggleRefreshButton(true);
 
         // 构造 URLSearchParams 对象
@@ -357,7 +357,7 @@
         // 如果 API 需要具体参数，可在这里添加，如：urlencoded.append("key", "value");
 
         const response = await fetch(API_URL+"/device", {
-            method: 'POST',
+            method: 'GET',
             body: urlencoded,
             redirect: 'follow'
         });
@@ -481,6 +481,7 @@
         let UrlPara=new URLSearchParams(HrefSearch);
         const username = UrlPara.get('username')
         console.log("name",username);
+
         refreshData(); // 首次加载数据
         setInterval(refreshData, 30000); // 30秒自动刷新
     </script>
