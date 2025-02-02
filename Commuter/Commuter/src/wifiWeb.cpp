@@ -1,8 +1,8 @@
 #include "wifiWeb.h"
 
 
-
 void sendNotFound(AsyncWebServerRequest *request){
+
     request->send(404,"text/plain","Not Found");
 }
 
@@ -87,7 +87,8 @@ void sendSPIFFSFile(String path,AsyncWebServerRequest *request){
 }
 
 bool permissionCheck(AsyncWebServerRequest *request,const char* perName){
-    int perParam=readOrCreate(perName,2);
+    Serial.write(request->url().c_str());
+    int perParam=perName=="ADMIN"?2:readOrCreate(perName,2);
     if(!perParam)return true;
     if(!request->hasHeader("Authorization"))return false;
     String name=(request->getHeader("Authorization"))->value();

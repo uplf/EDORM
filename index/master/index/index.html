@@ -300,7 +300,6 @@
             <button class="btn-start" onclick="sendCommand('/LightOFF')">🦇🎩 助手</button>
             <button class="btn-reset" onclick="sendCommand('/AlertOFF')">👊🏼🐔 闹钟</button>
             <button class="btn-stop" onclick="sendCommand('/FORCEStop')">🛑🌍 急停</button>
-
         </div>
 
         <h2 class="device-title">🔧开发操作</h2>
@@ -313,14 +312,14 @@
         <h2 class="device-title">🛠️维护操作</h2>
         <div class="operation-group">
             <button class="btn-stop" onclick="sendCommand('/EtherOff')">🌊 断连以太</button>
-            <button class="btn-stop" onclick="sendCommand('/WifiOff')">🌐 关闭无线</button>
+            <button class="btn-stop" onclick="sendCommand('/WifiOff')">🌐 重连设备</button>
             <button class="btn-reset" onclick="sendHrefCommand('/permission')">🚷 权限设置</button>
         </div>
     </div>
 
     <script>
         // 配置ESP32服务器地址（修改为你的实际IP）
-        const ESP32_IP = '127.0.0.1:4523/m1/5807065-5492102-default';
+        const ESP32_IP = '192.168.4.1';
         const ROOT_URL=`http://${ESP32_IP}`;
         const API_URL = `${ROOT_URL}/API`;
 
@@ -350,7 +349,7 @@
         // 刷新数据
         async function refreshData() {
             getStatusData();
-    try {
+        try {
         toggleRefreshButton(true);
 
         // 构造 URLSearchParams 对象
@@ -358,7 +357,7 @@
         // 如果 API 需要具体参数，可在这里添加，如：urlencoded.append("key", "value");
 
         const response = await fetch(API_URL+"/device", {
-            method: 'POST',
+            method: 'GET',
             body: urlencoded,
             redirect: 'follow'
         });
@@ -419,7 +418,7 @@
         async function sendCommand(command) {
             
             try {
-            const response = await fetch(API_URL + command,{headers:{ "Authorization":`Bearer ${username}`}});
+            const response = await fetch(API_URL + command,{headers:{ "Authorization":`${username}`}});
             if (!response.ok) throw new Error('控制命令发送失败');
 
             // 读取响应 body
@@ -482,6 +481,7 @@
         let UrlPara=new URLSearchParams(HrefSearch);
         const username = UrlPara.get('username')
         console.log("name",username);
+
         refreshData(); // 首次加载数据
         setInterval(refreshData, 30000); // 30秒自动刷新
     </script>

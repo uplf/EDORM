@@ -2,8 +2,10 @@
 
 
 short (*operateMap[])()={NULL,&FBIOpenOperator,&LightOffOperator,&WifiOffOperator,
-                            &EtherOffOperator,&AlertOffOperator,&forceSTOPOperator};
-short (*operateReqMap[])(AsyncWebServerRequest*)={NULL,&defpermOperator};
+                            &EtherOffOperator,&AlertOffOperator,&forceSTOPOperator,
+                            &discEtherOperator,&discDeviceOperator,&discWiFiOperator};
+short (*operateReqMap[])(AsyncWebServerRequest*)={NULL,&defpermOperator,&editThemeOperator,&eraseUsersOperator};
+String(*operateStrMap[])(AsyncWebServerRequest*)={NULL,&alterAdminOperator,&generateUserOperator};
 
 
 communitorStatus cmtStatus;
@@ -96,7 +98,9 @@ short handleOperatie(short cmd){
 short handleOperatie(short cmd,AsyncWebServerRequest *request){
     return (*operateReqMap[cmd])(request);
 }
-
+String handleOperatie(AsyncWebServerRequest* request,short cmd){
+    return (*operateStrMap[cmd])(request);
+}
 
 short FBIOpenOperator(){return 0;}
 short LightOffOperator(){return 0;}
@@ -104,12 +108,20 @@ short WifiOffOperator(){return 0;}
 short EtherOffOperator(){return 0;}
 short AlertOffOperator(){return 0;}
 short forceSTOPOperator(){return 0;}
+
+
 short defpermOperator(AsyncWebServerRequest* request){
     for(short i=0;i<=7;i++){
         prefs.putInt(prefMAP[i].c_str(),PERstringToCode(request->getParam(perMap[i])->value()));
     }
     return 0;
 }
+short editThemeOperator(AsyncWebServerRequest *){return 0;}
+short eraseUsersOperator(AsyncWebServerRequest *){return 0;}
+
+
+String alterAdminOperator(AsyncWebServerRequest *){return "to be done";}
+String generateUserOperator(AsyncWebServerRequest*){return "to be done";}
 
 
 String codeToString(int code){

@@ -18,28 +18,28 @@ String buildJsonDataResponse_Permission();
 struct timeStatus{
     timeStatus(){this->hour=0;this->min=0;this->sec=0;}
     timeStatus(short hr, short mi, short sc):hour(hr),min(mi),sec(sc){}
-    short hour;
-    short min;
-    short sec;
+    short hour=2;
+    short min=1;
+    short sec=2;
     String timeToJsonString();
 };
 
 struct deviceStatus{
-    short status;
+    short status=0;
     String deviceStatusToJsonString();
 };
 
 struct funcStatus{
-    short status;
+    short status=1;
     String funcStatusToJsonString();
 };
 
 struct cmdStatus{
-    short cmd;
+    short cmd=1;
     String cmdStatusToJsonString();
 };
 struct valStatus{
-    float value;
+    float value=1;
     String valueToJsonString(String);
 };
 
@@ -76,6 +76,7 @@ extern messagerStatus msgStatus;
 
 short handleOperatie(short);
 short handleOperatie(short,AsyncWebServerRequest *);
+String handleOperatie(AsyncWebServerRequest*,short);
 
 short FBIOpenOperator();
 short LightOffOperator();
@@ -83,7 +84,17 @@ short WifiOffOperator();
 short EtherOffOperator();
 short AlertOffOperator();
 short forceSTOPOperator();
+short discEtherOperator();
+short discDeviceOperator();
+short discWiFiOperator();
+
+
 short defpermOperator(AsyncWebServerRequest *);
+short editThemeOperator(AsyncWebServerRequest *);
+short eraseUsersOperator(AsyncWebServerRequest *)
+
+String alterAdminOperator(AsyncWebServerRequest *);
+String generateUserOperator(AsyncWebServerRequest*);
 
 String codeToString(int);
 int PERstringToCode(String);

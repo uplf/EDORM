@@ -178,9 +178,9 @@
         }
 
         .btn-stop { 
-            background-color: #F44336; 
-            width: 130px;
-            color: white; 
+        background-color: #F44336; 
+        width: 130px;
+        color: white; 
         }
 
         .btn-reset { 
@@ -357,7 +357,7 @@
         // 如果 API 需要具体参数，可在这里添加，如：urlencoded.append("key", "value");
 
         const response = await fetch(API_URL+"/device", {
-            method: 'GET',
+            method: 'POST',
             body: urlencoded,
             redirect: 'follow'
         });
@@ -398,9 +398,10 @@
                             break;
                         }
                         case 'messager':{
-                            elements.temp.textContent = `${deviceData.temperature.toFixed(1)}°C`;
+                            
+                            elements.temp.textContent = `${parseFloat(deviceData.temperature).toFixed(1)}°C`;
                             elements.humidity.textContent = `${Math.round(deviceData.humidity)}%`;
-                            elements.wind.textContent = `${deviceData.wind_speed.toFixed(1)}m/s`;
+                            elements.wind.textContent = `${parseFloat(deviceData.wind_speed).toFixed(1)}m/s`;
                             elements.status.className = `status-indicator ${deviceData.status}`;
                             break;
                             
@@ -429,8 +430,9 @@
             } catch (error) {
             updateBroadcast(`⚠️ 控制失败: ${error.message}`, '#f8d7da', '#721c24');
             }
-
         }
+
+        
         async function sendHrefCommand(path){
             try{
                 window.location.href=path+'?username='+username;

@@ -10,7 +10,11 @@
             margin: 20px;
             background-color: #f5f7fa;
         }
-
+        /* 标题区 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -18,7 +22,10 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            
         }
+
+
             /* 新增：按钮间距调整 */
         .btn-group {
             display: flex;
@@ -65,20 +72,93 @@
             cursor: pointer;
         }
 
-        /* 按钮样式 */
+        /* 基础按钮样式 */
         .btn {
             padding: 10px 20px;
-            background: #007bff;
+            background: #f5f5f5;  /* 灰白色背景 */
+            color: #333;  /* 普通操作的黑色字体 */
+            border: 1px solid #ccc;  /* 灰色边框 */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: normal;  /* 默认字体不加粗 */
+        }
+
+        .btn:hover {
+            background: #e0e0e0;  /* 悬停时背景色稍微变暗 */
+        }
+
+        /* 主按钮 */
+        .btn-primary {
+            padding: 10px 20px;
+            background: #f5f5f5;  /* 灰白色背景 */
+            color: #4CAF50;  /* 绿色字体 */
+            border: 1px solid #4CAF50;  /* 绿色边框 */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;  /* 主按钮字体加粗 */
+        }
+
+        .btn-primary:hover {
+            background: #e8f5e9;  /* 悬停时背景色稍微变亮 */
+        }
+
+        /* 警告按钮 */
+        .btn-warning {
+            padding: 10px 20px;
+            background: #f5f5f5;  /* 灰白色背景 */
+            color: #f44336;  /* 红色字体 */
+            border: 1px solid #f44336;  /* 红色边框 */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;  /* 警告按钮字体加粗 */
+        }
+
+        .btn-warning:hover {
+            background: #ffebee;  /* 悬停时背景色稍微变亮 */
+        }
+                /* 输入框和按钮容器 */
+                .input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;  /* 输入框和按钮之间的间距 */
+        }
+
+        /* 输入框样式 */
+        .input-box {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 250px;  /* 输入框宽度 */
+            background: #f5f5f5;
+            transition: background 0.3s;
+        }
+
+        .input-box:focus {
+            background: #e0e0e0;  /* 聚焦时背景色变暗 */
+            outline: none;
+        }
+
+        /* 提交按钮样式 */
+        .btn-submit {
+            padding: 10px 20px;
+            background: #4CAF50;  /* 绿色按钮 */
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             transition: 0.3s;
+            font-weight: bold;
         }
 
-        .btn:hover {
-            background: #0056b3;
+        .btn-submit:hover {
+            background: #45a049;  /* 悬停时更深的绿色 */
         }
+
+
 
         /* 响应式设计 */
         @media (max-width: 768px) {
@@ -89,6 +169,13 @@
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1 class="main-title"> 秽土重生🤺<br> <span id="theme"></span> </h1>
+        <h2><div id="broadcast">
+            📢 系统初始化中...
+        </div>
+        </h2>
+    </div>
     <div class="container">
          
         
@@ -100,7 +187,7 @@
                     <th>最低用户组</th>
                 </tr>
             </thead>
-            <tbody>
+            <body>
                 <tr>
                     <td>开门助手</td>
                     <td>
@@ -170,7 +257,8 @@
                             <option value="admin">管理用户</option>
                         </select>
                     </td>
-
+                </tr>
+                <tr>
                     <td>急停</td>
                     <td>
                         <select class="permission-select" data-permission="FORCEStop">
@@ -182,24 +270,50 @@
                 </tr>
             </tbody>
         </table>
-
         <div class="container">
             <!-- 原有表格保持不变 -->
     
             <!-- 修改：按钮容器 -->
             <div class="btn-group">
-                <button class="btn" onclick="window.close()">离开</button>
                 <button class="btn" onclick="refreshPermissions()">刷新权限</button> <!-- 新增刷新按钮 -->
-                <button class="btn" onclick="savePermissions()">保存设置</button>
+                <button class="btn-primary" onclick="savePermissions()">保存设置</button>
+                <button class="btn-warning" onclick="savePermissions()">失能非管理员权限</button>
             </div>
+
+            <hr style="margin: 10px 0; border: 1px solid #ccc;">
+
+            <div class="btn-group">
+                <button class="btn" onclick="sendCommand('/disconnectEther')">断开以太网连接</button> <!-- 新增刷新按钮 -->
+                <button class="btn" onclick="sendCommand('/disconnectDevice')">断开设备互联</button>
+                <button class="btn-warning" onclick="sendCommand('/disconnectWiFi')">关闭WiFi</button>
+            </div>
+
+            <hr style="margin: 10px 0; border: 1px solid #ccc;">
+
+            <div class="btn-group">
+                <button class="btn" onclick="sendCommand('/generateUser')">生成内部用户口令</button>
+                <button class="btn-warning" onclick="sendCommand('/alterAdmin')">修改管理用户口令</button>
+                <button class="btn-warning" onclick="sendCommand('/eraseUsers')">抹除其他用户口令</button>
+            </div>
+
+            <hr style="margin: 10px 0; border: 1px solid #ccc;">
+
+                <!-- 输入框和提交按钮容器 -->
+            <div class="input-container">
+                <input type="text" class="input-box" id="userInput" placeholder="请输入内容">
+                <button class="btn-submit" onclick="submitForm()">提交</button>
+            </div>
+
         </div>
-        
+       
+
     </div>
 
     <script>
                 // 配置ESP32服务器地址（修改为你的实际IP）
         const ESP32_IP = '192.168.4.1';
         const ROOT_URL=`http://${ESP32_IP}`;
+        const API_URL = `${ROOT_URL}/API`;
 
 
                 // 新增：刷新权限函数
@@ -219,10 +333,10 @@
                 
                 // 更新UI
                 updatePermissionUI();
-                alert('权限已刷新！');
+                updateBroadcast('刷新成功', '#d4edda', '#155724');
             } catch (error) {
                 console.error('刷新失败:', error);
-                alert(`刷新失败: ${error.message}`);
+                updateBroadcast(`刷新失败${error.message}`, '#f8d7da', '#721c24');
             }
         }
 
@@ -252,6 +366,17 @@
             refreshPermissions(); // 页面加载时自动刷新
         }
 
+        
+        function updateBroadcast(message, bgColor, textColor) {
+            const broadcast = document.getElementById('broadcast');
+            broadcast.textContent = message;
+            broadcast.style.backgroundColor = bgColor;
+            broadcast.style.color = textColor;
+            broadcast.style.borderColor = textColor;
+        }
+
+        
+
         // 保存权限设置
         function savePermissions() {
             const selects = document.querySelectorAll('.permission-select');
@@ -265,20 +390,59 @@
             }
             // 这里可以添加保存到服务器的逻辑
             console.log('保存的权限配置:', JSON.stringify(userdata));
-            alert('权限设置已保存！');
+            
             fetch(ROOT_URL+"/permission/API", {
                 method: "PUT",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: JSON.stringify(userdata),
             }).then(response => response.text())
-              .then(data => alert("服务器响应：" + data));
+              .then(data => updateBroadcast(`📡服务器相应${data}`, '#d4edda', '#155724'));
         }
+        
+
+
+        async function sendCommand(command) {
+            
+            try {
+            const response = await fetch(API_URL + command,{headers:{ "Authorization":`${username}`}});
+            if (!response.ok) throw new Error('控制命令发送失败');
+
+            // 读取响应 body
+            const responseData = await response.json(); // 或 response.json() 如果返回的是 JSON
+            if(response.status===200){
+                updateBroadcast(`📢 命令执行成功: ${responseData.status}`, '#d4edda', '#155724');
+                if(responseData.hasOwnProperty('adminName'))alert("唯一管理员口令：",responseData.adminName);
+                if(responseData.hasOwnProperty('newUserName'))alert("生成用户口令：",responseData.newUserName);
+            }
+            else updateBroadcast(`⚠️ 失败: ${error.message}`, '#f8d7da', '#721c24');
+            
+            } catch (error) {
+            updateBroadcast(`⚠️ 失败: ${error.message}`, '#f8d7da', '#721c24');
+            }
+        }
+
+        function submitForm() {
+            const userInput = document.getElementById('userInput').value;  // 获取输入框的值
+
+            const broadcastWord={
+                UserInfo:username,
+                theme:userInput
+            }
+            fetch(ROOT_URL+"/API/editTheme", {
+                method: "PUT",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: JSON.stringify(userdata),
+            }).then(response => response.text())
+            .then(data => updateBroadcast(`📡服务器响应${data}`, '#d4edda', '#155724'));
+        }
+
 
         // 页面加载时初始化
         window.onload = initPage;
         let HrefSearch=window.location.search;
         let UrlPara=new URLSearchParams(HrefSearch);
         const username = UrlPara.get('username');
+        updateBroadcast('welcome', '#d4edda', '#155724');
     </script>
 </body>
 </html>
