@@ -32,6 +32,7 @@ struct deviceStatus{
 struct funcStatus{
     short status=1;
     String funcStatusToJsonString();
+    short stateCodeToErrorCode();
 };
 
 struct cmdStatus{
@@ -80,24 +81,31 @@ String handleOperatie(AsyncWebServerRequest*,short);
 
 short FBIOpenOperator();
 short LightOffOperator();
-short WifiOffOperator();
-short EtherOffOperator();
+short DeviceRelinkOperator();
+short EtherOnOperator();
 short AlertOffOperator();
 short forceSTOPOperator();
 short discEtherOperator();
 short discDeviceOperator();
 short discWiFiOperator();
 
+//异步操作函数区
+void FBIAsyncHandler(void*);
+void LightAsyncHandler(void*);
+void WiFiRelinkAsyncHandler(void*);
+
+
 
 short defpermOperator(AsyncWebServerRequest *);
 short editThemeOperator(AsyncWebServerRequest *);
-short eraseUsersOperator(AsyncWebServerRequest *)
+short eraseUsersOperator(AsyncWebServerRequest *);
 
 String alterAdminOperator(AsyncWebServerRequest *);
 String generateUserOperator(AsyncWebServerRequest*);
 
 String codeToString(int);
 int PERstringToCode(String);
+
 
 
 

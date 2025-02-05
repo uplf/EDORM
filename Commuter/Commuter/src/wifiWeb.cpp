@@ -9,15 +9,25 @@ void sendNotFound(AsyncWebServerRequest *request){
 void sendInnerError(AsyncWebServerRequest *request){
     request->send(500,"text/plain","Internal Server Error");
 }
+void sendForbidden(AsyncWebServerRequest *request){
+    request->send(403,"text/plain","Forbidden, Check your usergroup");
+}
+
 
 void sendJsonToAPIClient(AsyncWebServerRequest *request,String jsoncontent){
     request->send(200,"application/json",jsoncontent);
 }
+
+String errorCodeToMsg[]={"Success","fail to obtain state","Unknown","reserved abstract error",
+"operation locked","device disconnected","device occupied"
+};
 void sendJsonResToAPIClient(AsyncWebServerRequest *request,short result){
     StaticJsonDocument<64> jsonStatus;
     jsonStatus["status"]=result?"failed":"done";
     int HTMLcode=result?500:200;
-    if(result)jsonStatus["error"]="error code:"+(String)result;
+    if(result){jsonStatus["error_code"]="error code:"+(String)result;
+        jsonStatus["error"]=errorCodeToMsg[result];
+    }
     String respJSON;
     serializeJson(jsonStatus,respJSON);
     request->send(HTMLcode,"application/json",respJSON);

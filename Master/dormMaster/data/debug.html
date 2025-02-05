@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>EDORM-串口云调试助手</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: "Microsoft Yahei", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f7fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .status-text {
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        /* 通知栏 */
+        .notification {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .connect-panel{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        /* 数据展示区 */
+        .data-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .data-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* 解析区 */
+        .parse-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-height: 150px;
+        }
+
+        /* 发送区 */
+        .send-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-send { background: #28a745; color: white; }
+        .btn-clear { background: #dc3545; color: white; }
+        .btn-quick { background: #007bff; color: white; }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* 状态颜色 */
+        .disconnected { background: #dc3545; }
+        .error { background: #ffc107; }
+        .busy { background: #17a2b8; }
+        .locked { background: #6c757d; }
+        .ready { background: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>串口云调试助手</h1>
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-indicator disconnected"></div>
+            <span class="status-text">设备状态：未连接</span>
+            <div class="status-indicator ready"></div>
+            <span class="status-text">调试权限：就绪</span>
+        </div>
+
+        <!-- 通知栏 -->
+        <div class="notification">
+            🚨 最新通知：检测到未处理的异常数据包（FE ED）
+        </div>
+
+        <!-- 发送区 -->
+        <div class="connect-panel">
+
+            <div class="quick-buttons">
+
+                <button class="btn-send" onclick="appliConnect()">申请连接</button>
+                <button class="btn-clear" onclick="autoScan('STOP')">自采停止</button>
+                <button class="btn-send" onclick="autoScan('START')">自采打开</button>
+                <button class="btn-quick" onclick="Scan()">手动刷新</button>
+                <button class="btn-stop" onclick="window.close()">退出</button>
+            </div>
+        </div>
+
+
+
+        <!-- 数据展示区 -->
+        <div class="data-panel">
+            <div class="data-box">
+                <h3>接收数据 (最近10条)</h3>
+                <div id="receive-list">
+                    <!-- 数据示例 -->
+                    <div class="data-item">
+                        <span>-- -- --</span>
+                        <span class="timestamp">--:--:--.---</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="data-box">
+                <h3>发送数据 (最近10条)</h3>
+                <div id="send-list">
+                    <!-- 数据示例 -->
+                    <div class="data-item">
+                        <span>-- -- --</span>
+                        <span class="timestamp">--:--:--.---</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 解析区 -->
+        <div class="parse-box">
+            <h3>数据解析结果</h3>
+            <pre id="parse-result"><!-- 解析结果将显示在这里 --></pre>
+        </div>
+
+        <!-- 发送区 -->
+        <div class="send-box">
+            <div class="input-group">
+                <input type="text" id="send-input" placeholder="输入HEX数据 (例: AA BB CC)">
+                <button class="btn-send" onclick="sendData()">发送</button>
+                <button class="btn-clear" onclick="clearData()">清空</button>
+            </div>
+            
+            <div class="quick-buttons">
+
+                <button class="btn-quick" onclick="quickSend('PING')">PING指令</button>
+                <button class="btn-quick" onclick="quickSend('RESET')">复位指令</button>
+                <button class="btn-quick" onclick="quickSend('STATUS')">状态查询</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 数据存储
+        let receiveQueue = [];
+        let sendQueue = [];
+        const maxRecords = 30;
+
+        // 更新数据列表
+        function updateList(queue, elementId) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = queue.map(item => `
+                <div class="data-item">
+                    <span>${item.data}</span>
+                    <span class="timestamp">${item.timestamp}</span>
+                </div>
+            `).join('');
+        }
+
+        // 发送数据
+        function sendData() {
+            const input = document.getElementById('send-input');
+            const data = input.value.trim();
+            
+            if(data) {
+                // 添加到发送队列
+                sendQueue.unshift({
+                    data: formatHex(data),
+                    timestamp: new Date().toLocaleTimeString("numeric")
+                });
+                console.log(sendQueue);
+                if(sendQueue.length > maxRecords) sendQueue.pop();
+                
+                updateList(sendQueue, 'send-list');
+                input.value = '';
+                
+                // TODO: 实际发送逻辑
+            }
+        }
+
+        // 清空数据
+        function clearData() {
+            receiveQueue = [];
+            sendQueue = [];
+            updateList([], 'receive-list');
+            updateList([], 'send-list');
+        }
+
+        // 快捷发送
+        function quickSend(command) {
+            const commands = {
+                'PING': '0x55 0xAA',
+                'RESET': '0x5A 0xA5',
+                'STATUS': '0x01 0x03'
+            };
+            document.getElementById('send-input').value = commands[command];
+            sendData();
+        }
+
+        // HEX格式
+        function formatHex(data) {
+            return data.toUpperCase()
+                .replace(/0X/g, '')
+                .split(' ')
+                .map(b => '0x' + b.padStart(2, '0'))
+                .join(' ');
+        }
+
+        function scanData(){
+
+
+        }
+        function testFunc(){
+            if(Math.random() > 0.8) {
+                receiveQueue.unshift({
+                    data: '0x' + [...Array(12)]
+                        .map(() => Math.floor(Math.random()*256).toString(16).padStart(2, '0').toUpperCase())
+                        .join(' 0x'),
+                    timestamp: new Date().toLocaleTimeString("numeric")
+                });
+                
+                if(receiveQueue.length > maxRecords) receiveQueue.pop();
+                updateList(receiveQueue, 'receive-list');
+            }
+        }
+
+
+        let auto_scan="";
+        function autoScan(cmd){
+            if(cmd=='START')auto_scan=setInterval(testFunc,1000);
+            else clearInterval(timer);
+        }
+    </script>
+</body>
+</html>

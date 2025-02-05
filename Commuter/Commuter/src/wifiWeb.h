@@ -13,11 +13,14 @@
 
 extern AsyncWebServer server;
 
+void serverUrlConfig();
+
 void handle_not_found();
 void sendNotFound();
 void sendNotFound(AsyncWebServerRequest *request);
 void sendInnerError();
 void sendInnerError(AsyncWebServerRequest *request);
+void sendForbidden(AsyncWebServerRequest *request);
 
 void sendJsonToAPIClient(AsyncWebServerRequest *,String);
 void sendJsonResToAPIClient(AsyncWebServerRequest *,short);

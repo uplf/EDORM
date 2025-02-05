@@ -1,8 +1,9 @@
 #include "dataOper.h"
+#include "util.h"
 
 
-short (*operateMap[])()={NULL,&FBIOpenOperator,&LightOffOperator,&WifiOffOperator,
-                            &EtherOffOperator,&AlertOffOperator,&forceSTOPOperator,
+short (*operateMap[])()={NULL,&FBIOpenOperator,&LightOffOperator,&DeviceRelinkOperator,
+                            &EtherOnOperator,&AlertOffOperator,&forceSTOPOperator,
                             &discEtherOperator,&discDeviceOperator,&discWiFiOperator};
 short (*operateReqMap[])(AsyncWebServerRequest*)={NULL,&defpermOperator,&editThemeOperator,&eraseUsersOperator};
 String(*operateStrMap[])(AsyncWebServerRequest*)={NULL,&alterAdminOperator,&generateUserOperator};
@@ -32,6 +33,15 @@ String funcStatus::funcStatusToJsonString(){
         case 3:return "error";
     }
     return "inner-error";
+}
+short funcStatus::stateCodeToErrorCode(){
+        switch(this->status){
+        case 0:return 0;
+        case 1:return 6;
+        case 2:return 4;
+        case 3:return 3;
+        default:return 2;
+    }
 }
 String cmdStatus::cmdStatusToJsonString(){
     switch(this->cmd){
@@ -80,7 +90,7 @@ String buildJsonDataResponse_Device(){
 }
 
 String perMap[]={"door","light","alarm","serial","api","ethernet","device","FORCEStop"};
-String prefMAP[]={"FBI","light","AlertOff","debug","request","EtherOff","WifiOff","FORCEStop"};
+String prefMAP[]={"FBI","light","AlertOff","debug","request","EtherOn","DeviceRelink","FORCEStop"};
 
 String buildJsonDataResponse_Permission(){
     StaticJsonDocument<256> jsonStatus;
@@ -102,12 +112,34 @@ String handleOperatie(AsyncWebServerRequest* request,short cmd){
     return (*operateStrMap[cmd])(request);
 }
 
-short FBIOpenOperator(){return 0;}
-short LightOffOperator(){return 0;}
-short WifiOffOperator(){return 0;}
-short EtherOffOperator(){return 0;}
+short FBIOpenOperator(){
+    Serial.write("FBI_Func");
+    if(!cmtStatus.FBI.status){
+        xTaskCreate(FBIAsyncHandler,"FBIOpenTheDoor",2048,NULL,1,NULL);
+        return 0;
+    }else return cmtStatus.FBI.stateCodeToErrorCode();
+}
+short LightOffOperator(){
+    Serial.write("LIGHTOff_Func");
+    if(!cmtStatus.light.status){
+        xTaskCreate(LightAsyncHandler,"LightOffTheDoor",2048,NULL,1,NULL);
+        return 0;
+    }else return cmtStatus.FBI.stateCodeToErrorCode();
+}
+
+short DeviceRelinkOperator(){
+    xTaskCreate(WiFiRelinkAsyncHandler,"DeviceRelink",2048,NULL,1,NULL);
+    return 0;
+}
+
+short EtherOnOperator(){return 0;}
 short AlertOffOperator(){return 0;}
 short forceSTOPOperator(){return 0;}
+
+
+
+
+
 
 
 short defpermOperator(AsyncWebServerRequest* request){
@@ -122,6 +154,32 @@ short eraseUsersOperator(AsyncWebServerRequest *){return 0;}
 
 String alterAdminOperator(AsyncWebServerRequest *){return "to be done";}
 String generateUserOperator(AsyncWebServerRequest*){return "to be done";}
+
+
+void FBIAsyncHandler(void* parameter){
+    cmtStatus.FBI.status=1;
+    analogWrite(FBI_PIN,FBI_OPEN_ANALOG);
+    delay(1000);
+    analogWrite(FBI_PIN,0);
+    cmtStatus.FBI.status=0;
+}
+void LightAsyncHandler(void* parameter){
+    cmtStatus.light.status=1;
+    analogWrite(LIGHT_PIN,LIGHT_OFF_ANALOG);
+    delay(1000);
+    analogWrite(LIGHT_PIN,0);
+    cmtStatus.light.status=0;
+}
+void WiFiRelinkAsyncHandler(void*){
+    delay(1000);
+    server.end();
+    WiFi.disconnect(true);
+    //重新连接蓝牙操作
+
+    WiFi.softAP(ssid, password);
+    WiFi.softAPConfig(local_ip, gateway, subnet);
+}
+
 
 
 String codeToString(int code){
@@ -139,4 +197,5 @@ int PERstringToCode(String userGroup){
     return -1;
 
 }
+
 

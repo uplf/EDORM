@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>EDORM</title>
+    <title>EDORMaster</title>
     <style>
         /* 基础样式 */
         body {
@@ -178,9 +178,9 @@
         }
 
         .btn-stop { 
-        background-color: #F44336; 
-        width: 130px;
-        color: white; 
+            background-color: #F44336; 
+            width: 130px;
+            color: white; 
         }
 
         .btn-reset { 
@@ -232,7 +232,7 @@
 <body>
     <!-- 标题区 -->
     <div class="header">
-        <h1 class="main-title"> 秽土重生🤺<br> <span id="theme"></span> </h1>
+        <h1 class="main-title"> Master终端<br> <span id="theme"></span> </h1>
         <h2><div id="broadcast">
             📢 系统初始化中...
         </div>
@@ -250,18 +250,6 @@
 
     <!-- 设备状态 -->
     <div class="status-container">
-        <!-- 空调系统 -->
-        <div class="device-card" id="communitor">
-            <h2 class="device-title">
-                <span class="status-indicator"></span>
-                ❄️ 通讯机
-            </h2>
-            <ul class="metric-list">
-                <li><span>🕸️以太网：</span><span class="ether-value">--</span></li>
-                <li><span>🚔️FBI：</span><span class="FBI-state">--</span></li>
-                <li><span>🎩开关：</span><span class="light-state">--</span></li>
-            </ul>
-        </div>
 
         <!-- 通风系统 -->
         <div class="device-card" id="master">
@@ -276,72 +264,42 @@
                 <li><span>🐞调试：</span><span class="debug-state">--</span></li>
             </ul>
         </div>
-
-        <!-- 冷却系统 -->
-        <div class="device-card" id="messager">
-            <h2 class="device-title">
-                <span class="status-indicator"></span>
-                ⛈️ 传感机
-            </h2>
-            <ul class="metric-list">
-                <li><span>🥶温度：</span><span class="temp-value">--</span></li>
-                <li><span>🐜湿度：</span><span class="humidity-value">--</span></li>
-                <li><span>🍃风速：</span><span class="wind-value">--</span></li>
-            </ul>
-        </div>
     </div>
 
     <!-- 操作区 -->
     <div class="operations">
         
-        <h2 class="device-title">🐦️客户操作</h2>
+        <h2 class="device-title">🔧桌面操作</h2>
         <div class="operation-group">
-            <button class="btn-start" onclick="sendCommand('/FBIOpen')">🦵🚪 FBI</button>
-            <button class="btn-start" onclick="sendCommand('/LightOFF')">🦇🎩 助手</button>
-            <button class="btn-reset" onclick="sendCommand('/AlertOFF')">👊🏼🐔 闹钟</button>
-            <button class="btn-stop" onclick="sendCommand('/FORCEStop')">🛑🌍 急停</button>
-        </div>
-
-        <h2 class="device-title">🔧开发操作</h2>
-        <div class="operation-group">
-            <button class="btn-reset" onclick="sendHrefCommand('/debug')">usartCMD</button>
-            <button class="btn-reset" onclick="sendHrefCommand('/request')">etherAPI</button>
-            <button class="btn-start" onclick="sendHrefCommand('/file')">📁文档</button>
+            <button class="btn-reset" onclick="sendHrefCommand('/operator.html')">usartCMD</button>
+            <button class="btn-reset" onclick="sendHrefCommand('/debug.html')">Eoperate</button>
         </div>
 
         <h2 class="device-title">🛠️维护操作</h2>
         <div class="operation-group">
-            <button class="btn-start" onclick="sendCommand('/EtherOn')">🌊 接入以太</button>
-            <button class="btn-reset" onclick="sendCommand('/DeviceRelink')">🌐 重连设备</button>
-            <button class="btn-reset" onclick="sendHrefCommand('/permission')">🚷 权限设置</button>
+            <button class="btn-stop" onclick="sendCommand('/res1')">预留1</button>
+            <button class="btn-stop" onclick="sendCommand('/res2')">预留2</button>
+            <button class="btn-stop" onclick="sendCommand('/res3')">预留3</button>
+            <button class="btn-stop" onclick="sendCommand('/res4')">预留4</button>
         </div>
     </div>
 
     <script>
         // 配置ESP32服务器地址（修改为你的实际IP）
+        const ESP32S3_IP = '127.0.0.1:4523/m1/5807065-5492102-default';
+        const MSATER_ROOT_URL=`http://${ESP32S3_IP}`;
+        const MASTER_API_URL = `${MSATER_ROOT_URL}/API`;
         const ESP32_IP = '192.168.4.1';
         const ROOT_URL=`http://${ESP32_IP}`;
         const API_URL = `${ROOT_URL}/API`;
 
         // 设备映射配置
         const deviceConfig = {
-            'communitor': {
-                status: document.querySelector('#communitor .status-indicator'),
-                ether: document.querySelector('#communitor .ether-value'),
-                FBI: document.querySelector('#communitor .FBI-state'),
-                light: document.querySelector('#communitor .light-state'),
-            },
             'master': {
                 status: document.querySelector('#master .status-indicator'),
                 cmd: document.querySelector('#master .cmd-value'),
                 alarm: document.querySelector('#master .alarm-value'),
                 debug: document.querySelector('#master .debug-state')
-            },
-            'messager': {
-                temp: document.querySelector('#messager .temp-value'),
-                humidity: document.querySelector('#messager .humidity-value'),
-                wind: document.querySelector('#messager .wind-value'),
-                status: document.querySelector('#messager .status-indicator')
             }
         };
 
@@ -356,7 +314,7 @@
         var urlencoded = new URLSearchParams();
         // 如果 API 需要具体参数，可在这里添加，如：urlencoded.append("key", "value");
 
-        const response = await fetch(API_URL+"/device", {
+        const response = await fetch(MASTER_API_URL+"/device", {
             method: 'POST',
             body: urlencoded,
             redirect: 'follow'
@@ -368,13 +326,13 @@
         updateUI(data);
         updateBroadcast('✅ 数据更新成功', '#d4edda', '#155724');
 
-    } catch (error) {
-        console.error('刷新失败:', error);
-        updateBroadcast(`⚠️ 错误: ${error.message}`, '#f8d7da', '#721c24');
-    } finally {
-        toggleRefreshButton(false);
-        updateTime();
-    }
+        } catch (error) {
+            console.error('刷新失败:', error);
+            updateBroadcast(`⚠️ 错误: ${error.message}`, '#f8d7da', '#721c24');
+        } finally {
+            toggleRefreshButton(false);
+            updateTime();
+        }
         }
 
         // 更新界面
@@ -383,28 +341,12 @@
                 const elements = deviceConfig[deviceId];
                 if (elements) {
                     switch(deviceId){
-                        case 'communitor':{
-                            elements.ether.textContent=`${deviceData.ether}`;
-                            elements.FBI.textContent=`${deviceData.FBI}`;
-                            elements.light.textContent=`${deviceData.light}`;
-                            elements.status.className = `status-indicator ${deviceData.status}`;
-                            break;
-                        }
                         case 'master':{
                             elements.cmd.textContent=`${deviceData.cmd}`;
                             elements.alarm.textContent=`${deviceData.alarm}`;
                             elements.debug.textContent=`${deviceData.debug}`;
                             elements.status.className = `status-indicator ${deviceData.status}`;
                             break;
-                        }
-                        case 'messager':{
-                            
-                            elements.temp.textContent = `${parseFloat(deviceData.temperature).toFixed(1)}°C`;
-                            elements.humidity.textContent = `${Math.round(deviceData.humidity)}%`;
-                            elements.wind.textContent = `${parseFloat(deviceData.wind_speed).toFixed(1)}m/s`;
-                            elements.status.className = `status-indicator ${deviceData.status}`;
-                            break;
-                            
                         }
                     }
                     animateUpdate(deviceId);
@@ -419,7 +361,7 @@
         async function sendCommand(command) {
             
             try {
-            const response = await fetch(API_URL + command,{headers:{ "Authorization":`${username}`}});
+            const response = await fetch(MASTER_API_URL + command,{headers:{ "Authorization":`${username}`}});
             if (!response.ok) throw new Error('控制命令发送失败');
 
             // 读取响应 body
@@ -430,9 +372,8 @@
             } catch (error) {
             updateBroadcast(`⚠️ 控制失败: ${error.message}`, '#f8d7da', '#721c24');
             }
-        }
 
-        
+        }
         async function sendHrefCommand(path){
             try{
                 window.location.href=path+'?username='+username;
@@ -472,16 +413,18 @@
             body: urlencoded,
             redirect: 'follow'
             };
-            fetch(API_URL+"/device", requestOptions)
+            fetch(MASTER_API_URL+"/device", requestOptions)
            .then(response => response.text())
             .then(result => console.log(result))
             .catch(error => console.log('error', error));
         }
 
         // 初始化
-        let HrefSearch=window.location.search;
-        let UrlPara=new URLSearchParams(HrefSearch);
-        const username = UrlPara.get('username')
+        // let HrefSearch=window.location.search;
+        // let UrlPara=new URLSearchParams(HrefSearch);
+        // const username = UrlPara.get('username')
+        // console.log("name",username);
+        const username='admin';
         console.log("name",username);
 
         refreshData(); // 首次加载数据
