@@ -5,7 +5,8 @@
 short (*operateMap[])()={NULL,&FBIOpenOperator,&LightOffOperator,&DeviceRelinkOperator,
                             &EtherOnOperator,&AlertOffOperator,&forceSTOPOperator,
                             &discEtherOperator,&discDeviceOperator,&discWiFiOperator};
-short (*operateReqMap[])(AsyncWebServerRequest*)={NULL,&defpermOperator,&editThemeOperator,&eraseUsersOperator};
+short (*operateReqMap[])(AsyncWebServerRequest*)={NULL,&defpermOperator,&editThemeOperator,&eraseUsersOperator,
+                                                    &handleMasterCmd};
 String(*operateStrMap[])(AsyncWebServerRequest*)={NULL,&alterAdminOperator,&generateUserOperator};
 
 
@@ -13,9 +14,12 @@ communitorStatus cmtStatus;
 masterStatus mstStatus;
 messagerStatus msgStatus;
 
+const IPAddress MASTER_ip(192, 168, 1, 100);
+
 String timeStatus::timeToJsonString(){
     return String(this->hour)+":"+String(this->min)+":"+String(this->sec);
 }
+
 String deviceStatus::deviceStatusToJsonString(){
         switch(this->status){
         case 0:return "normal";
@@ -53,6 +57,17 @@ String cmdStatus::cmdStatusToJsonString(){
     }
     return "inner-error";
 }
+bool cmdStatus::pickVaildDef(int i){
+    if(i>=0&&i<5){
+        this->cmd=i;
+        return true;
+    }return false;
+
+}
+short cmdStatus::handleCMD(){
+    Serial.write("handling cmd",this->cmd);
+    return 0;
+}
 String valStatus::valueToJsonString(String unit=""){
     return String(this->value)+unit;
 }
@@ -61,9 +76,10 @@ String valStatus::valueToJsonString(String unit=""){
 
 
 String buildJsonDataResponse_Device(){
-    StaticJsonDocument<512> jsonStatus;
-
     
+    refreshMasterData();
+
+    StaticJsonDocument<512> jsonStatus;
     JsonObject communitor=jsonStatus.createNestedObject("communitor");
     communitor["ether"]=cmtStatus.ether.funcStatusToJsonString();
     communitor["FBI"]=cmtStatus.FBI.funcStatusToJsonString();
@@ -102,13 +118,13 @@ String buildJsonDataResponse_Permission(){
 }
 
 
-short handleOperatie(short cmd){
+short handleOperate(short cmd){
     return (*operateMap[cmd])();
 }
-short handleOperatie(short cmd,AsyncWebServerRequest *request){
+short handleOperate(short cmd,AsyncWebServerRequest *request){
     return (*operateReqMap[cmd])(request);
 }
-String handleOperatie(AsyncWebServerRequest* request,short cmd){
+String handleOperate(AsyncWebServerRequest* request,short cmd){
     return (*operateStrMap[cmd])(request);
 }
 
@@ -132,7 +148,11 @@ short DeviceRelinkOperator(){
     return 0;
 }
 
-short EtherOnOperator(){return 0;}
+short EtherOnOperator(){
+    ETHInit();
+    if(Ethernet.localIP()==IPAddress(0,0,0,0))return 10;
+    else return 0;
+}
 short AlertOffOperator(){return 0;}
 short forceSTOPOperator(){return 0;}
 
@@ -148,12 +168,74 @@ short defpermOperator(AsyncWebServerRequest* request){
     }
     return 0;
 }
-short editThemeOperator(AsyncWebServerRequest *){return 0;}
-short eraseUsersOperator(AsyncWebServerRequest *){return 0;}
+short editThemeOperator(AsyncWebServerRequest *request){
+    String jsonData = request->getParam("json")->value();  // 获取查询参数 "json"
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, jsonData);
+    if(error)return 7;
+    String newTheme=doc["theme"];
+    prefs.putString("theme",newTheme);
+    return 0;
+}
+
+short eraseUsersOperator(AsyncWebServerRequest *request){
+    String curAdmin=prefs_user.getString("ADMIN");
+    if(request->getHeader("Authorization")->value()!=curAdmin)return 8;
+    prefs_user.clear();
+    prefs_user.putString("ADMIN",curAdmin);
+    prefs_user.putInt(curAdmin.c_str(),2);
+    return 0;
+}
+short handleMasterCmd(AsyncWebServerRequest* request){
+    String jsonData = request->getParam("json")->value();  // 获取查询参数 "json"
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, jsonData);
+    if(error)return 7;
+    int cmdType=doc["cmdType"];
+    //1状态命令 2功能命令 3设置命令
+    int cmd=doc["cmd"];
+    switch(cmdType){
+        case 1:return(mstStatus.cmd.pickVaildDef(cmd))?mstStatus.cmd.handleCMD():7;
+        case 2:return handleOperate(cmd);
+        case 3:{
+            //
+
+            return 0;
+        } 
+        default:return 7;
+    }
+
+}
 
 
-String alterAdminOperator(AsyncWebServerRequest *){return "to be done";}
-String generateUserOperator(AsyncWebServerRequest*){return "to be done";}
+String alterAdminOperator(AsyncWebServerRequest *request){
+    String curAdmin=prefs_user.getString("ADMIN");
+    if(request->getHeader("Authorization")->value()!=curAdmin)return "forbidden";
+    String newAdmin=randomString(6);
+    prefs_user.putString("ADMIN",newAdmin);
+    prefs_user.remove(curAdmin.c_str());
+    prefs_user.putInt(newAdmin.c_str(),2);
+
+    StaticJsonDocument<64> jsonStatus;
+    jsonStatus["status"]="done";
+    jsonStatus["adminName"]=newAdmin;
+    String respJSON;
+    serializeJson(jsonStatus,respJSON);
+    return respJSON;
+}
+String generateUserOperator(AsyncWebServerRequest* request){
+    String curAdmin=prefs_user.getString("ADMIN");
+    if(request->getHeader("Authorization")->value()!=curAdmin)return "forbidden";
+    String newUser=randomString(6);
+    prefs_user.putInt(newUser.c_str(),1);
+
+    StaticJsonDocument<64> jsonStatus;
+    jsonStatus["status"]="done";
+    jsonStatus["newUserName"]=newUser;
+    String respJSON;
+    serializeJson(jsonStatus,respJSON);
+    return respJSON;
+}
 
 
 void FBIAsyncHandler(void* parameter){
@@ -162,6 +244,7 @@ void FBIAsyncHandler(void* parameter){
     delay(1000);
     analogWrite(FBI_PIN,0);
     cmtStatus.FBI.status=0;
+    vTaskDelete(NULL);  // 任务结束
 }
 void LightAsyncHandler(void* parameter){
     cmtStatus.light.status=1;
@@ -169,6 +252,7 @@ void LightAsyncHandler(void* parameter){
     delay(1000);
     analogWrite(LIGHT_PIN,0);
     cmtStatus.light.status=0;
+    vTaskDelete(NULL);  // 任务结束
 }
 void WiFiRelinkAsyncHandler(void*){
     delay(1000);
@@ -178,6 +262,7 @@ void WiFiRelinkAsyncHandler(void*){
 
     WiFi.softAP(ssid, password);
     WiFi.softAPConfig(local_ip, gateway, subnet);
+    vTaskDelete(NULL);  // 任务结束
 }
 
 
@@ -197,5 +282,48 @@ int PERstringToCode(String userGroup){
     return -1;
 
 }
+String randomString(int length){
+  const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // 字母 + 数字
+  String randomStr = "";
+  
+  for (int i = 0; i < length; i++) {
+    int index = random(0, sizeof(charset) - 1);  // 从字符集中随机选择一个字符
+    randomStr += charset[index];  // 添加字符到字符串
+  }
 
+  return randomStr;
+}
+int refreshMasterData(){
+        //这里是有关连接设备的操作,申请成功
+    try{
+        if(!Ping.ping(MASTER_ip))throw 3;
+        String masterREQ;
+        if((HTTPreqMasterToString("/API/data",&masterREQ)/100!=2))throw 2;
+        StaticJsonDocument<200> MasterDatas;
+        DeserializationError deserError = deserializeJson(MasterDatas, masterREQ);
+        if(deserError)throw 1;
+        JsonObject masterData=MasterDatas["master"];
+        mstStatus.status=masterData["status"];
+        //传过来注意，需要json从头j到尾
+        JsonObject alarmTime=masterData["alarm"];
+        mstStatus.alarm.hour=alarmTime["hour"];
+        mstStatus.alarm.min=alarmTime["min"];
+        mstStatus.alarm.sec=alarmTime["sec"];
+
+        mstStatus.cmd=masterData["cmd"];
+        mstStatus.debug=masterData["debug"];
+
+        JsonObject messagerData=MasterDatas["messager"];
+        msgStatus.status=messagerData["status"];
+        msgStatus.humidity=messagerData["humidity"];
+        msgStatus.temperature=messagerData["temperature"];
+        msgStatus.wind_speed=messagerData["wind_speed"];
+        return 0;
+    }catch(int err){
+        mstStatus.status.status=3;
+        mstStatus.cmd.cmd=4;
+        mstStatus.debug.status=3;
+        return err;
+    }
+}
 

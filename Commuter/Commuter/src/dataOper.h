@@ -15,6 +15,7 @@ String buildJsonDataResponse_Permission();
 
 
 
+
 struct timeStatus{
     timeStatus(){this->hour=0;this->min=0;this->sec=0;}
     timeStatus(short hr, short mi, short sc):hour(hr),min(mi),sec(sc){}
@@ -22,6 +23,7 @@ struct timeStatus{
     short min=1;
     short sec=2;
     String timeToJsonString();
+
 };
 
 struct deviceStatus{
@@ -38,6 +40,8 @@ struct funcStatus{
 struct cmdStatus{
     short cmd=1;
     String cmdStatusToJsonString();
+    bool pickVaildDef(int);
+    short handleCMD();
 };
 struct valStatus{
     float value=1;
@@ -75,9 +79,9 @@ extern messagerStatus msgStatus;
 
 
 
-short handleOperatie(short);
-short handleOperatie(short,AsyncWebServerRequest *);
-String handleOperatie(AsyncWebServerRequest*,short);
+short handleOperate(short);
+short handleOperate(short,AsyncWebServerRequest *);
+String handleOperate(AsyncWebServerRequest*,short);
 
 short FBIOpenOperator();
 short LightOffOperator();
@@ -99,13 +103,17 @@ void WiFiRelinkAsyncHandler(void*);
 short defpermOperator(AsyncWebServerRequest *);
 short editThemeOperator(AsyncWebServerRequest *);
 short eraseUsersOperator(AsyncWebServerRequest *);
+short handleMasterCmd(AsyncWebServerRequest*);
 
 String alterAdminOperator(AsyncWebServerRequest *);
 String generateUserOperator(AsyncWebServerRequest*);
 
+//其他中间函数
 String codeToString(int);
 int PERstringToCode(String);
 
+String ramdomString(int length=6);
+int refreshMasterData();
 
 
 
