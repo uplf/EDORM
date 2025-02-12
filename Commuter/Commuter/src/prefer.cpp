@@ -14,6 +14,7 @@ void prefInit(){
         prefs_user.putInt("admin51wiuplf",2);
         prefs_user.putInt("LOVEWYX",1);
         prefs_user.putInt("esp32wroomkituser",3);
+
         
     }
     if(!prefs.isKey("FLAG")){
@@ -28,7 +29,9 @@ void prefInit(){
         prefs.putInt("DeviceRelink",1);
         prefs.putInt("FORCEStop",1);
         prefs.putInt("permission",2);
+        prefs.putInt("MusicPlay",1);
         prefs.putString("theme","to be tested");
+        prefs.putString("musicUrl","local");
     }
 }
 

@@ -6,6 +6,16 @@
 #include "prefer.h"
 
 
+#include <AudioGeneratorMP3.h>
+#include <AudioOutputI2S.h>
+#include <AudioFileSourceSPIFFS.h>
+// 音频组件
+extern AudioFileSourceSPIFFS *playfile;
+extern AudioGeneratorMP3 *mp3;
+extern AudioOutputI2S *out;
+
+
+
 
 
 String buildJsonStatusResponse(short,String);
@@ -15,13 +25,12 @@ String buildJsonDataResponse_Permission();
 
 
 
-
 struct timeStatus{
     timeStatus(){this->hour=0;this->min=0;this->sec=0;}
     timeStatus(short hr, short mi, short sc):hour(hr),min(mi),sec(sc){}
-    short hour=2;
-    short min=1;
-    short sec=2;
+    short hour=0;
+    short min=0;
+    short sec=0;
     String timeToJsonString();
 
 };
@@ -79,6 +88,8 @@ extern messagerStatus msgStatus;
 
 
 
+void I2S_init();
+
 short handleOperate(short);
 short handleOperate(short,AsyncWebServerRequest *);
 String handleOperate(AsyncWebServerRequest*,short);
@@ -92,11 +103,15 @@ short forceSTOPOperator();
 short discEtherOperator();
 short discDeviceOperator();
 short discWiFiOperator();
+short playMusicOperator();
 
 //异步操作函数区
 void FBIAsyncHandler(void*);
 void LightAsyncHandler(void*);
 void WiFiRelinkAsyncHandler(void*);
+// FreeRTOS任务句柄
+extern TaskHandle_t playTaskHandle;
+void MusicAsyncHandler(void*);
 
 
 
@@ -104,6 +119,7 @@ short defpermOperator(AsyncWebServerRequest *);
 short editThemeOperator(AsyncWebServerRequest *);
 short eraseUsersOperator(AsyncWebServerRequest *);
 short handleMasterCmd(AsyncWebServerRequest*);
+short editMusicUrlOperator(AsyncWebServerRequest *);
 
 String alterAdminOperator(AsyncWebServerRequest *);
 String generateUserOperator(AsyncWebServerRequest*);

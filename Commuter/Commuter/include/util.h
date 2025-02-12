@@ -1,15 +1,32 @@
-/****************************************************************************************************************************
-  defines.h
+#ifndef __UTIL_H
+#define __UTIL_H
 
-  Ethernet_Generic is a library for the W5x00 Ethernet shields trying to merge the good features of
-  previous Ethernet libraries
+#include "dataOper.h"
+#define SCANNER_CYCLE 1000
+#define AUTO_DEVICE_SCANNER false
 
-  Built by Khoi Hoang https://github.com/khoih-prog/Ethernet_Generic
- ***************************************************************************************************************************************/
 
-#ifndef defines_h
-#define defines_h
 
+extern const char* ssid;
+extern const char* password;
+
+extern IPAddress local_ip;
+extern IPAddress gateway;
+extern IPAddress subnet;
+
+#define FBI_PIN 10
+#define FBI_OPEN_ANALOG 128
+#define LIGHT_PIN 11
+#define LIGHT_OFF_ANALOG 128
+
+// 定义 I2S 引脚
+#define I2S_DOUT      25  // 数据输出引脚
+#define I2S_BCLK      27  // 位时钟引脚
+#define I2S_LRC       26  // 左右时钟引脚
+
+
+
+//eth
 #include <SPI.h>
 #include <soc/spi_pins.h>
 
@@ -75,6 +92,13 @@ byte mac[][NUMBER_OF_MAC] =
 IPAddress ip(192, 168, 2, 222);
 
 // Google DNS Server IP
-IPAddress myDns(9,9,9,9);
+IPAddress myDns(8,8,8,8);
 
-#endif    //defines_h
+
+extern communitorStatus cmtStatus;
+extern masterStatus mstStatus;
+extern messagerStatus msgStatus;
+
+
+
+#endif

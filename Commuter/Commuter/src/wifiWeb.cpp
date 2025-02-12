@@ -59,7 +59,7 @@ void serverUrlConfig(){
     [](AsyncWebServerRequest *request){permissionCheck(request,"AlertOff")?sendJsonResToAPIClient(request,handleOperate(5)):sendForbidden(request);});
 
     server.on("/API/FORCEStop",HTTP_GET,
-    [](AsyncWebServerRequest *request){permissionCheck(request,"FORTHStop")?sendJsonResToAPIClient(request,handleOperate(6)):sendForbidden(request);});
+    [](AsyncWebServerRequest *request){permissionCheck(request,"FORCEStop")?sendJsonResToAPIClient(request,handleOperate(6)):sendForbidden(request);});
     
     server.on("/API/disconnectEther",HTTP_GET,
     [](AsyncWebServerRequest *request){permissionCheck(request,"ADMIN")?sendJsonResToAPIClient(request,handleOperate(7)):sendForbidden(request);});
@@ -69,24 +69,30 @@ void serverUrlConfig(){
     
     server.on("/API/disconnectWiFi",HTTP_GET,
     [](AsyncWebServerRequest *request){permissionCheck(request,"ADMIN")?sendJsonResToAPIClient(request,handleOperate(9)):sendForbidden(request);});
+
+    server.on("/API/MusicPlay",HTTP_GET,
+    [](AsyncWebServerRequest *request){permissionCheck(request,"MusicPlay")?sendJsonResToAPIClient(request,handleOperate(10)):sendForbidden(request);});
     
-    server.on("/API/generateUser",HTTP_GET,
-    [](AsyncWebServerRequest *request){permissionCheck(request,"ADMIN")?sendJsonResToAPIClient(request,handleOperate(10)):sendForbidden(request);});
-    
-    server.on("/API/alterAdmin",HTTP_GET,
+    server.on("/API/alterAdmin",HTTP_PUT,
     [](AsyncWebServerRequest *request){permissionCheck(request,"ADMIN")?sendJsonToAPIClient(request,handleOperate(request,1)):sendForbidden(request);});
     
-    server.on("/API/eraseUsers",HTTP_GET,
+    server.on("/API/generateUser",HTTP_PUT,
     [](AsyncWebServerRequest *request){permissionCheck(request,"ADMIN")?sendJsonToAPIClient(request,handleOperate(request,2)):sendForbidden(request);});
     
     server.on("/permission/API",HTTP_PUT,
     [](AsyncWebServerRequest *request){permissionCheck(request,"permission")?sendJsonResToAPIClient(request,handleOperate(1,request)):sendForbidden(request);});
 
     server.on("/API/editTheme",HTTP_PUT,
-    [](AsyncWebServerRequest *request){permissionCheck(request,"permission")?sendJsonResToAPIClient(request,handleOperate(1,request)):sendForbidden(request);});
+    [](AsyncWebServerRequest *request){permissionCheck(request,"permission")?sendJsonResToAPIClient(request,handleOperate(2,request)):sendForbidden(request);});
+
+    server.on("/API/eraseUsers",HTTP_PUT,
+    [](AsyncWebServerRequest *request){permissionCheck(request,"ADMIN")?sendJsonResToAPIClient(request,handleOperate(3,request)):sendForbidden(request);});
 
     server.on("/MSAPI/cmd",HTTP_PUT,
     [](AsyncWebServerRequest *request){permissionCheck(request,"MASTER")?sendJsonResToAPIClient(request,handleOperate(4,request)):sendForbidden(request);});
+
+    server.on("/API/editMusicUrl",HTTP_PUT,
+    [](AsyncWebServerRequest *request){permissionCheck(request,"MusicPlay")?sendJsonResToAPIClient(request,handleOperate(5,request)):sendForbidden(request);});
 }
 
 void sendNotFound(AsyncWebServerRequest *request){
@@ -109,10 +115,10 @@ void sendJsonToAPIClient(AsyncWebServerRequest *request,String jsoncontent){
     request->send(200,"application/json",jsoncontent);
 }
 
-String errorCodeToMsg[]={"Success","fail to obtain state","Unknown","reserved abstract error",
-"operation locked","device disconnected","device occupied",
-"invaild parameter","invaild user","reserved request error",
-"failed to perform"
+String errorCodeToMsg[]={"0 Success","1 fail to obtain state","2 Unknown","3 reserved abstract error",
+"4 operation locked","5 device disconnected","6 device occupied",
+"7 invaild parameter","8 invaild user","9 reserved request error",
+"10 failed to perform","11 failed as function is developing","12 redir as func's partial dev"
 };
 void sendJsonResToAPIClient(AsyncWebServerRequest *request,short result){
     StaticJsonDocument<64> jsonStatus;

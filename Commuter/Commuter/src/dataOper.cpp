@@ -4,9 +4,10 @@
 
 short (*operateMap[])()={NULL,&FBIOpenOperator,&LightOffOperator,&DeviceRelinkOperator,
                             &EtherOnOperator,&AlertOffOperator,&forceSTOPOperator,
-                            &discEtherOperator,&discDeviceOperator,&discWiFiOperator};
+                            &discEtherOperator,&discDeviceOperator,&discWiFiOperator,
+                            &playMusicOperator};
 short (*operateReqMap[])(AsyncWebServerRequest*)={NULL,&defpermOperator,&editThemeOperator,&eraseUsersOperator,
-                                                    &handleMasterCmd};
+                                                    &handleMasterCmd,&editMusicUrlOperator};
 String(*operateStrMap[])(AsyncWebServerRequest*)={NULL,&alterAdminOperator,&generateUserOperator};
 
 
@@ -15,6 +16,11 @@ masterStatus mstStatus;
 messagerStatus msgStatus;
 
 const IPAddress MASTER_ip(192, 168, 1, 100);
+
+AudioFileSourceSPIFFS *playfile = nullptr;
+AudioGeneratorMP3 *mp3 = nullptr;
+AudioOutputI2S *out = nullptr;
+TaskHandle_t playTaskHandle = nullptr;
 
 String timeStatus::timeToJsonString(){
     return String(this->hour)+":"+String(this->min)+":"+String(this->sec);
@@ -105,18 +111,25 @@ String buildJsonDataResponse_Device(){
     return jsonString;
 }
 
-String perMap[]={"door","light","alarm","serial","api","ethernet","device","FORCEStop"};
-String prefMAP[]={"FBI","light","AlertOff","debug","request","EtherOn","DeviceRelink","FORCEStop"};
+String perMap[]={"door","light","alarm","serial","api","ethernet","device","FORCEStop","MusicPlay"};
+String prefMAP[]={"FBI","light","AlertOff","debug","request","EtherOn","DeviceRelink","FORCEStop","MusicPlay"};
 
 String buildJsonDataResponse_Permission(){
     StaticJsonDocument<256> jsonStatus;
     jsonStatus["theme"]=readOrCreate("theme",(String)"");
-    for(short i=0;i<=7;i++)jsonStatus[perMap[i]]=codeToString(readOrCreate((prefMAP[i]).c_str(),2));
+    for(short i=0;i<=8;i++)jsonStatus[perMap[i]]=codeToString(readOrCreate((prefMAP[i]).c_str(),2));
     String jsonString;
     serializeJson(jsonStatus,jsonString);
     return jsonString;
 }
 
+
+void I2S_init(){
+        // 初始化I2S
+    out = new AudioOutputI2S();
+    out->SetPinout(25, 26, 27);  // LRC, BCLK, DIN
+    out->SetOutputModeMono(true);
+}
 
 short handleOperate(short cmd){
     return (*operateMap[cmd])();
@@ -155,7 +168,41 @@ short EtherOnOperator(){
 }
 short AlertOffOperator(){return 0;}
 short forceSTOPOperator(){return 0;}
+short discEtherOperator(){return 0;}
+short discDeviceOperator(){return 0;}
+short discWiFiOperator(){return 0;}
+short playMusicOperator(){
+    if(mp3 && mp3->isRunning()) {mp3->stop();
+        if(playfile) delete playfile;
+        return 0;
+    }
+    bool playLocal=true;
+    bool code=0;
+    
+    String URL=prefs.getString("musicUrl","local");
+    if(URL=="local"&&1){
+        //网络url功能正在开发
+        playLocal=false;
+        playLocal=true;
+        code=12;//连接失败返回2
+    }
 
+    if(playLocal)playfile = new AudioFileSourceSPIFFS("/IloveVanger.mp3");
+    mp3 = new AudioGeneratorMP3();
+
+    xTaskCreatePinnedToCore(
+        MusicAsyncHandler,    // 任务函数
+        "PlayTask",  // 任务名称
+        4096,       // 栈大小
+        nullptr,    // 参数
+        2,           // 优先级
+        &playTaskHandle, 
+        0            // 核心
+    );
+    if (!mp3->begin(playfile, out)) {
+        return 10;
+    }else return code;
+}
 
 
 
@@ -163,7 +210,7 @@ short forceSTOPOperator(){return 0;}
 
 
 short defpermOperator(AsyncWebServerRequest* request){
-    for(short i=0;i<=7;i++){
+    for(short i=0;i<=8;i++){
         prefs.putInt(prefMAP[i].c_str(),PERstringToCode(request->getParam(perMap[i])->value()));
     }
     return 0;
@@ -173,7 +220,7 @@ short editThemeOperator(AsyncWebServerRequest *request){
     StaticJsonDocument<200> doc;
     DeserializationError error = deserializeJson(doc, jsonData);
     if(error)return 7;
-    String newTheme=doc["theme"];
+    String newTheme=doc["index"];
     prefs.putString("theme",newTheme);
     return 0;
 }
@@ -205,6 +252,15 @@ short handleMasterCmd(AsyncWebServerRequest* request){
         default:return 7;
     }
 
+}
+short editMusicUrlOperator(AsyncWebServerRequest *request){
+    String jsonData = request->getParam("json")->value();  // 获取查询参数 "json"
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, jsonData);
+    if(error)return 7;
+    String newURL=doc["index"];
+    prefs.putString("musicUrl",newURL);
+    return 0;
 }
 
 
@@ -265,6 +321,21 @@ void WiFiRelinkAsyncHandler(void*){
     vTaskDelete(NULL);  // 任务结束
 }
 
+
+void MusicAsyncHandler(void* param){
+    while(1) {
+        if (mp3 && mp3->isRunning()) {
+            if (!mp3->loop()) {
+                mp3->stop();
+                delete mp3;
+                delete playfile;
+                mp3 = nullptr;
+                playfile = nullptr;
+            }
+        }
+        vTaskDelay(1 / portTICK_PERIOD_MS);
+    }
+}
 
 
 String codeToString(int code){
