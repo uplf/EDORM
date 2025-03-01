@@ -12,8 +12,8 @@
 #include <ArduinoJson.h>
 #include "dataOper.h"
 
-#include "ETH.h"
-#include <SPI.h>
+//#include "ETH.h"
+
 #include "util.h"
 #include "HTTPClient.h"
 
@@ -45,15 +45,15 @@ void WiFiEnd();
 
 //ETH
 void ETHInit();
-
-extern EthernetClient EthClient;
+// #include "Ethernet_Generic.h"
+// extern EthernetClient EthClient;
 
 
 //HTTP request
-extern HTTPClient HttpClient;
+extern HTTPClient myHTTPClient;
 
-int HTTPreqToString(String URL,String *respString,int (HTTPClient::*REQ)()=&HTTPClient::GET);
-int HTTPreqMasterToString(String relativeURL,String *respString,int (HTTPClient::*REQ)()=&HTTPClient::GET);
+int HTTPGETreqToString(String URL,String *respString);
+int HTTPGETreqMasterToString(String relativeURL,String *respString);
 
 
 #endif

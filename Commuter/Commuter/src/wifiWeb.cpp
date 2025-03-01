@@ -7,13 +7,42 @@ IPAddress local_ip(192,168,4,1);
 IPAddress gateway(192,168,4,1);
 IPAddress subnet(255,255,255,0);
 
+//eth
+IPAddress ip(192, 168, 2, 222);
+IPAddress myDns(8,8,8,8);
+
+byte mac[][NUMBER_OF_MAC] =
+{
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x01 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x02 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x03 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x04 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x05 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x06 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x07 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x08 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x09 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x0A },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x0B },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x0C },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x0D },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x0E },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x0F },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x10 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x11 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x12 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x13 },
+  { 0xDE, 0xAD, 0xBE, 0xEF, 0xBE, 0x14 },
+};
+
 const char* masterIP="192.168.1.100";
 const char* masterURL="http://192.168.1.100:8080";
-EthernetClient EthClient;
-HTTPClient HttpClient;
+// EthernetClient EthClient;
+HTTPClient myHTTPClient;
 
 
 void serverUrlConfig(){
+
     server.onNotFound([](AsyncWebServerRequest *request){sendNotFound(request);});
     //handler of login-page
     server.on("/",HTTP_GET, 
@@ -221,22 +250,25 @@ void WiFiEnd(){
 }
 
 
-void ETHInit(){
-  Ethernet.init (USE_THIS_SS_PIN);
-  uint16_t index = millis() % NUMBER_OF_MAC;
-  Ethernet.begin(mac[index]);
-}
+// void ETHInit(){
+//   Ethernet.init (USE_THIS_SS_PIN);
+//   uint16_t index = millis() % NUMBER_OF_MAC;
+//   Ethernet.begin(mac[index]);
+// }
 
 
 //http request
-int HTTPreqToString(String URL,String *respString,int (HTTPClient::*REQ)()=&HTTPClient::GET){
+int HTTPGETreqToString(String URL,String *respString){
     //避免同时使用
-    HttpClient.begin(URL);
-    int HTTPcode=(HttpClient.*REQ)();
-    if(HTTPcode>0) *respString=HttpClient.getString();
+    myHTTPClient.begin(URL);
+    int HTTPcode=myHTTPClient.GET();
+    if(HTTPcode>0) *respString=myHTTPClient.getString();
     return HTTPcode;
 }
-int HTTPreqMasterToString(String relativeURL,String *respString,int (HTTPClient::*REQ)()=&HTTPClient::GET){
-    relativeURL=masterURL+(relativeURL.charAt(0)=='/'?relativeURL:('/'+relativeURL));
-    return HTTPreqToString(relativeURL,respString,REQ);
+int HTTPGETreqMasterToString(String relativeURL,String *respString){
+
+    if (!relativeURL.startsWith("/")) {
+        relativeURL = "/" + relativeURL;
+    }
+    return HTTPGETreqToString(relativeURL,respString);
 }

@@ -88,7 +88,8 @@ extern messagerStatus msgStatus;
 
 
 
-void I2S_init();
+void I2S_Init();
+void key_Init();
 
 short handleOperate(short);
 short handleOperate(short,AsyncWebServerRequest *);
@@ -128,7 +129,7 @@ String generateUserOperator(AsyncWebServerRequest*);
 String codeToString(int);
 int PERstringToCode(String);
 
-String ramdomString(int length=6);
+String randomString(int length=6);
 int refreshMasterData();
 
 

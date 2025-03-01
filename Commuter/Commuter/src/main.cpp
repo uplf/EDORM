@@ -40,18 +40,18 @@ void setup()
 {
 
     Serial.begin(115200);
+    I2S_Init();
+    key_Init();
 
-    /*
-    I2S_init();
+    
     serverUrlConfig();
     server.begin();
     prefInit();
-    ETHInit();
+    // ETHInit();
     WiFiBegin();
 
     Serial.println("HTTP server started");
-    
-    */
+
    
 }
 

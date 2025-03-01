@@ -123,12 +123,18 @@ String buildJsonDataResponse_Permission(){
     return jsonString;
 }
 
+void keyInterruptHandler(){
 
-void I2S_init(){
+}
+void I2S_Init(){
         // 初始化I2S
     out = new AudioOutputI2S();
-    out->SetPinout(25, 26, 27);  // LRC, BCLK, DIN
+    out->SetPinout(I2S_LRC, I2S_BCLK, I2S_DOUT);  // LRC, BCLK, DIN
     out->SetOutputModeMono(true);
+}
+void key_Init(){
+    pinMode(OPRKEY,INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(OPRKEY), keyInterruptHandler, FALLING);
 }
 
 short handleOperate(short cmd){
@@ -162,9 +168,10 @@ short DeviceRelinkOperator(){
 }
 
 short EtherOnOperator(){
-    ETHInit();
-    if(Ethernet.localIP()==IPAddress(0,0,0,0))return 10;
-    else return 0;
+    // ETHInit();
+    // if(Ethernet.localIP()==IPAddress(0,0,0,0))return 10;
+    // else return 0;
+    return 0;
 }
 short AlertOffOperator(){return 0;}
 short forceSTOPOperator(){return 0;}
@@ -172,6 +179,7 @@ short discEtherOperator(){return 0;}
 short discDeviceOperator(){return 0;}
 short discWiFiOperator(){return 0;}
 short playMusicOperator(){
+    return 0;
     if(mp3 && mp3->isRunning()) {mp3->stop();
         if(playfile) delete playfile;
         return 0;
@@ -335,6 +343,7 @@ void MusicAsyncHandler(void* param){
         }
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
+    1+1;
 }
 
 
@@ -369,7 +378,7 @@ int refreshMasterData(){
     try{
         if(!Ping.ping(MASTER_ip))throw 3;
         String masterREQ;
-        if((HTTPreqMasterToString("/API/data",&masterREQ)/100!=2))throw 2;
+        if((HTTPGETreqMasterToString("/API/data",&masterREQ)/100!=2))throw 2;
         StaticJsonDocument<200> MasterDatas;
         DeserializationError deserError = deserializeJson(MasterDatas, masterREQ);
         if(deserError)throw 1;
@@ -398,3 +407,22 @@ int refreshMasterData(){
     }
 }
 
+
+// 特化 convertFromJson 函数
+
+void convertFromJson(const JsonVariantConst& json, valStatus& status) {
+    status.value = json["value"].as<float>();
+}
+
+void convertFromJson(const JsonVariantConst& json, cmdStatus& status) {
+    status.cmd = json["cmd"].as<short>();
+}
+
+void convertFromJson(const JsonVariantConst& json, funcStatus& status) {
+    status.status = json["status"].as<short>();
+}
+
+
+void convertFromJson(const JsonVariantConst& json, deviceStatus& status) {
+    status.status = json["status"].as<short>();
+}

@@ -17,6 +17,7 @@ class MyServerCallbacks : public BLEServerCallbacks
 {
   void onConnect(BLEServer *pServer);
   void onDisconnect(BLEServer *pServer);
+
 };
 
 //特性回调
